@@ -4,7 +4,7 @@ import { ClassifiedIntent } from '@/types/pipeline';
 import { CLASSIFIER_SYSTEM_PROMPT } from './prompts';
 
 const intentSchema = z.object({
-  intent: z.enum(['lookup', 'compare', 'explain_status', 'list_exceptions', 'general_question']),
+  intent: z.enum(['lookup', 'compare', 'explain_status', 'list_exceptions', 'general_question', 'auto_resolve_transaction']),
   transaction_id: z.string().nullable(),
   date_range: z.object({
     from: z.string(),

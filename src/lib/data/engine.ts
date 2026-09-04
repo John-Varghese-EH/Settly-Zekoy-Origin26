@@ -87,3 +87,64 @@ export async function getAllTransactions(): Promise<TransactionRecord[]> {
   }
   return records;
 }
+
+export async function autoResolveTransaction(transactionId: string): Promise<{ resolved: boolean; message: string }> {
+  const db = getDb();
+  const record = await getTransactionRecord(transactionId);
+  
+  if (!record.gateway) {
+    return { resolved: false, message: 'Cannot resolve: No gateway record found. Transaction does not exist.' };
+  }
+  
+  let resolvedBank = false;
+  let resolvedLedger = false;
+  
+  db.transaction(() => {
+    // If it's missing in bank, insert a pending settlement
+    if (!record.bank) {
+      const insertBank = db.prepare(`
+        INSERT INTO bank_settlements (id, transaction_id, settlement_batch_id, amount, status, bank_timestamp, settlement_date)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `);
+      insertBank.run(
+        `bs_auto_${Math.random().toString(36).substr(2, 9)}`,
+        transactionId,
+        'BATCH-AUTO-RESOLVE',
+        record.gateway!.amount,
+        'pending',
+        new Date().toISOString(),
+        new Date().toISOString().split('T')[0]
+      );
+      resolvedBank = true;
+    }
+    
+    // If it's missing in ledger, insert a posted entry
+    if (!record.ledger) {
+      const insertLedger = db.prepare(`
+        INSERT INTO ledger_entries (id, transaction_id, debit_account, credit_account, amount, status, ledger_timestamp, reconciliation_flag)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      insertLedger.run(
+        `le_auto_${Math.random().toString(36).substr(2, 9)}`,
+        transactionId,
+        'ACCT-REC-AUTO',
+        'ACCT-REV-AUTO',
+        record.gateway!.amount,
+        'posted',
+        new Date().toISOString(),
+        1 // 1 for true
+      );
+      resolvedLedger = true;
+    }
+  })();
+  
+  if (resolvedBank && resolvedLedger) {
+    return { resolved: true, message: 'Automatically resolved missing Bank Settlement and Ledger Entry records.' };
+  } else if (resolvedBank) {
+    return { resolved: true, message: 'Automatically resolved missing Bank Settlement record.' };
+  } else if (resolvedLedger) {
+    return { resolved: true, message: 'Automatically resolved missing Ledger Entry record.' };
+  }
+  
+  return { resolved: false, message: 'No missing records found to resolve. Anomaly might be a timing or amount mismatch which requires manual review.' };
+}

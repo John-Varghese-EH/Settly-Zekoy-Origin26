@@ -89,7 +89,10 @@ export function AgentDock({
   return (
     <form className={className} onSubmit={handleSubmit}>
       <div className="flex w-full flex-col-reverse overflow-hidden rounded-2xl p-2 text-white shadow-lg" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)", backdropFilter: "blur(12px)" }}>
-        <div className="flex items-center gap-3 px-1">
+        <div 
+          className="flex items-center gap-3 px-1 cursor-pointer"
+          onClick={() => { if (mode === "idle") openComposer(); }}
+        >
           <div className="size-9 flex items-center justify-center shrink-0 rounded-xl bg-white shadow-sm" style={{ border: "1px solid rgba(255,255,255,0.2)" }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <rect width="10" height="10" rx="2" fill="#000" />

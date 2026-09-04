@@ -42,12 +42,18 @@ export function ChatPanel({
     }
   }, [messages, isLoading, pipelineStage]);
 
-  // Open the trace panel automatically if we get a new timeline card or any response
+  // Store the ID of the last timeline card to only auto-open when a NEW trace happens
+  const [lastTraceId, setLastTraceId] = useState<string | null>(null);
+
   useEffect(() => {
-    if (timelineCard && (tracePanelState === 'closed' || tracePanelState === 'minimized')) {
-      setTracePanelState('open');
+    if (timelineCard) {
+      const currentTraceId = (timelineCard.data as any)?.gateway?.transaction_id || timelineCard.title;
+      if (currentTraceId !== lastTraceId) {
+        setTracePanelState('open');
+        setLastTraceId(currentTraceId);
+      }
     }
-  }, [timelineCard, tracePanelState, setTracePanelState]);
+  }, [timelineCard, lastTraceId, setTracePanelState]);
 
   const isEmpty = messages.length <= 1; // 1 is the welcome message in useChat
 
