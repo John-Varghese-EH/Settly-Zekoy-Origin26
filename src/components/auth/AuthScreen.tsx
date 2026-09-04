@@ -20,17 +20,24 @@ function friendlyError(msg: string): string {
 function GridBackground() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {/* Subtle radial glow */}
-      <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] opacity-[0.06]"
-        style={{ background: "radial-gradient(ellipse at center, #fff 0%, transparent 70%)" }}
+      {/* Dynamic radial glow */}
+      <motion.div
+        animate={{ 
+          scale: [1, 1.1, 1],
+          opacity: [0.15, 0.25, 0.15],
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -top-[20%] -left-[20%] w-[800px] h-[800px] rounded-full blur-3xl pointer-events-none"
+        style={{ background: "radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%)" }}
       />
       {/* Grid texture */}
       <div
-        className="absolute inset-0 opacity-[0.04]"
+        className="absolute inset-0 opacity-[0.06]"
         style={{
           backgroundImage: "linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)",
           backgroundSize: "48px 48px",
+          maskImage: "linear-gradient(to bottom right, black, transparent)",
+          WebkitMaskImage: "linear-gradient(to bottom right, black, transparent)"
         }}
       />
     </div>
@@ -105,62 +112,91 @@ export function AuthScreen() {
   }
 
   return (
-    <div className="flex h-full overflow-hidden w-full absolute inset-0 z-50" style={{ background: "#000", fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+    <div className="flex h-full overflow-hidden w-full absolute inset-0 z-50 text-white" style={{ background: "#050505", fontFamily: "'Inter', system-ui, sans-serif" }}>
 
       {/* ── Left panel ─────────────────────────────────────── */}
-      <div className="relative hidden lg:flex flex-col justify-between w-[480px] shrink-0 px-12 py-12 overflow-hidden" style={{ borderRight: "1px solid rgba(255,255,255,0.07)" }}>
+      <div className="relative hidden lg:flex flex-col justify-between w-[480px] shrink-0 px-12 py-12 overflow-hidden border-r border-white/10" style={{ background: "linear-gradient(145deg, #0a0a0f 0%, #000 100%)" }}>
         <GridBackground />
 
         {/* Top */}
-        <div className="relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="relative z-10"
+        >
           <SettlyWordmark />
           <div className="mt-16">
-            <p className="text-[10px] uppercase tracking-[0.22em] font-semibold mb-4" style={{ color: "rgba(255,255,255,0.35)" }}>
+            <p className="text-[10px] uppercase tracking-[0.22em] font-semibold mb-4 text-indigo-400">
               Fintech Agentic AI
             </p>
-            <h1 className="text-3xl font-semibold leading-tight tracking-tight text-white mb-6">
+            <h1 className="text-4xl font-semibold leading-tight tracking-tight text-white mb-6">
               Your intelligent<br />settlement<br />command center.
             </h1>
-            <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
+            <p className="text-sm leading-relaxed text-white/50">
               Settly's AI agent traces failed transactions, surfaces exceptions, and analyses your financial data - all in real time.
             </p>
           </div>
 
           {/* Stats strip */}
-          <div className="flex gap-6 mt-10 pt-8" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-            {STATS.map(s => (
-              <div key={s.label}>
+          <div className="flex gap-6 mt-10 pt-8 border-t border-white/10">
+            {STATS.map((s, i) => (
+              <motion.div 
+                key={s.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 + (i * 0.1) }}
+              >
                 <p className="text-xl font-semibold text-white tracking-tight">{s.value}</p>
-                <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{s.label}</p>
-              </div>
+                <p className="text-[11px] mt-0.5 text-white/40">{s.label}</p>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Features list */}
-        <div className="relative z-10 flex flex-col gap-4">
-          {FEATURES.map(f => (
-            <div key={f.title} className="flex gap-3.5 items-start">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="relative z-10 flex flex-col gap-5">
+          {FEATURES.map((f, i) => (
+            <motion.div 
+              key={f.title} 
+              className="flex gap-4 items-start"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.5 + (i * 0.1) }}
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-base" style={{ background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)", color: "#818cf8", boxShadow: "0 4px 12px rgba(99,102,241,0.1)" }}>
                 {f.icon}
               </div>
-              <div>
+              <div className="pt-0.5">
                 <p className="text-sm font-medium text-white leading-snug">{f.title}</p>
-                <p className="text-[11px] mt-0.5 leading-snug" style={{ color: "rgba(255,255,255,0.38)" }}>{f.desc}</p>
+                <p className="text-[11px] mt-1 leading-relaxed text-white/40">{f.desc}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
         {/* Bottom */}
-        <p className="relative z-10 text-[11px]" style={{ color: "rgba(255,255,255,0.2)" }}>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1 }}
+          className="relative z-10 text-[11px] text-white/20"
+        >
           © 2026 Settly · Fintech AI Platform
-        </p>
+        </motion.p>
       </div>
 
       {/* ── Right panel ────────────────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 overflow-y-auto" style={{ background: "#080808" }}>
-        <div className="w-full max-w-[400px]">
+      <div className="flex-1 flex items-center justify-center px-6 py-12 overflow-y-auto relative">
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_bottom_right,rgba(40,40,60,0.4),transparent_50%)]" />
+        
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-[420px] relative z-10 p-8 rounded-2xl"
+          style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(20px)", boxShadow: "0 24px 48px rgba(0,0,0,0.4)" }}
+        >
 
           {/* Mobile logo */}
           <div className="flex lg:hidden mb-10">
@@ -201,23 +237,24 @@ export function AuthScreen() {
                   : "Set up your AI-powered financial co-pilot."}
               </p>
 
-              {/* Google */}
-              <button
+              <motion.button
                 onClick={handleGoogle}
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-3 h-11 rounded-xl text-sm font-medium transition-all mb-5 disabled:opacity-40"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#fff" }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                className="w-full flex items-center justify-center gap-3 h-11 rounded-xl text-sm font-medium transition-colors mb-6 disabled:opacity-40"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.2)" }}
                 onMouseEnter={e => !loading && ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.1)")}
                 onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)")}
               >
                 <GoogleIcon />
                 Continue with Google
-              </button>
+              </motion.button>
 
-              <div className="flex items-center gap-3 mb-5">
-                <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.07)" }} />
-                <span className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>or</span>
-                <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.07)" }} />
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.1)" }} />
+                <span className="text-[11px] uppercase tracking-widest font-medium" style={{ color: "rgba(255,255,255,0.3)" }}>or continue with</span>
+                <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.1)" }} />
               </div>
 
               {/* Form */}
@@ -250,14 +287,21 @@ export function AuthScreen() {
                       required
                       minLength={8}
                       placeholder={mode === "signup" ? "Min. 8 characters" : "••••••••"}
-                      className="w-full h-11 px-3.5 pr-10 rounded-xl text-sm focus:outline-none transition-all"
+                      className="w-full h-11 px-3.5 pr-10 rounded-xl text-sm focus:outline-none transition-all placeholder:text-white/20"
                       style={{
-                        background: "rgba(255,255,255,0.05)",
-                        border: "1px solid rgba(255,255,255,0.12)",
+                        background: "rgba(255,255,255,0.03)",
+                        border: "1px solid rgba(255,255,255,0.1)",
                         color: "#fff",
+                        boxShadow: "inset 0 2px 4px rgba(0,0,0,0.2)"
                       }}
-                      onFocus={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.4)")}
-                      onBlur={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)")}
+                      onFocus={e => {
+                        e.currentTarget.style.borderColor = "rgba(99,102,241,0.5)";
+                        e.currentTarget.style.background = "rgba(99,102,241,0.05)";
+                      }}
+                      onBlur={e => {
+                        e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                        e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                      }}
                     />
                     <button
                       type="button"
@@ -290,24 +334,22 @@ export function AuthScreen() {
                   )}
                 </AnimatePresence>
 
-                <button
+                <motion.button
                   type="submit"
                   disabled={loading}
-                  className="mt-1 w-full h-11 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 active:scale-[0.98]"
-                  style={{ background: "#fff", color: "#000" }}
-                  onMouseEnter={e => !loading && ((e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.88)")}
-                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "#fff")}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className="mt-3 w-full h-11 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 relative overflow-hidden group"
+                  style={{ background: "#fff", color: "#000", boxShadow: "0 4px 12px rgba(255,255,255,0.2)" }}
                 >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.3" />
-                        <path d="M7 1.5a5.5 5.5 0 015.5 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                      </svg>
-                      Please wait…
+                      <div className="w-4 h-4 rounded-full border-2 border-black/20 border-t-black animate-spin" />
+                      Processing...
                     </span>
-                  ) : mode === "signin" ? "Sign in to Settly" : "Create account"}
-                </button>
+                  ) : mode === "signin" ? "Sign In" : "Create Account"}
+                </motion.button>
               </form>
 
               {/* Terms for signup */}
@@ -330,7 +372,7 @@ export function AuthScreen() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
@@ -349,10 +391,21 @@ function InputField({ label, type, value, onChange, placeholder, required }: {
         onChange={e => onChange(e.target.value)}
         required={required}
         placeholder={placeholder}
-        className="w-full h-11 px-3.5 rounded-xl text-sm focus:outline-none transition-all"
-        style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", color: "#fff" }}
-        onFocus={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.4)")}
-        onBlur={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)")}
+        className="w-full h-11 px-3.5 rounded-xl text-sm focus:outline-none transition-all placeholder:text-white/20"
+        style={{
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.1)",
+          color: "#fff",
+          boxShadow: "inset 0 2px 4px rgba(0,0,0,0.2)"
+        }}
+        onFocus={e => {
+          e.currentTarget.style.borderColor = "rgba(99,102,241,0.5)";
+          e.currentTarget.style.background = "rgba(99,102,241,0.05)";
+        }}
+        onBlur={e => {
+          e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+          e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+        }}
       />
     </div>
   );

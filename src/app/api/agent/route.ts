@@ -20,8 +20,12 @@ export async function POST(req: Request) {
       rateData = { count: 0, resetAt: now + windowMs };
     }
     
-    if (rateData.count >= 10) {
-      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+    // Increased to 60 requests per window for smooth demo experience
+    if (rateData.count >= 60) {
+      return NextResponse.json({ error: 'Rate limit exceeded, please wait a moment before trying again.' }, { 
+        status: 429,
+        headers: { 'Retry-After': '60' }
+      });
     }
     
     rateData.count += 1;

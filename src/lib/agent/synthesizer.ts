@@ -7,7 +7,7 @@ import { ReconciliationResult } from '@/lib/utils/reconciliation';
 function heuristicSynthesize(toolResult: ToolResult, reconciliation: ReconciliationResult | null): string {
   if (toolResult.tool_name === 'lookup' && toolResult.data) {
     if (reconciliation?.hasDiscrepancy) {
-      return "I found the transaction, but there is a discrepancy in the records. See the trace for details.";
+      return "I found the transaction, but there is a critical discrepancy in the records. I have escalated this issue to the Admin Console for manual review. See the trace for details.";
     }
     return "I found the transaction and it looks properly reconciled.";
   }
@@ -45,7 +45,7 @@ Reconciliation: ${JSON.stringify(reconciliation, null, 2)}
       `;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.6-flash',
         contents: promptData,
         config: {
           systemInstruction: SYNTHESIZER_SYSTEM_PROMPT,

@@ -83,7 +83,7 @@ export default function ApprovalCard() {
     <div className="flex min-h-[196px] w-full max-w-80 flex-col items-stretch">
       <div className="w-full self-start overflow-hidden rounded-card bg-surface shadow-card">
         {sent ? (
-          <div className="flex h-37 flex-col items-center justify-center gap-2">
+          <div className="flex h-[148px] flex-col items-center justify-center gap-2">
             <span
               className="flex size-6 items-center justify-center rounded-full bg-green text-white"
               style={{
@@ -123,7 +123,7 @@ export default function ApprovalCard() {
         ) : (
           <div
             key={qi}
-            className="primitive-card-pad p-4"
+            className="p-3"
             style={{
               animation: "fade-up 350ms cubic-bezier(0.23,1,0.32,1) both",
             }}
@@ -136,7 +136,7 @@ export default function ApprovalCard() {
                 type="button"
                 aria-label="Dismiss"
                 onClick={() => setOpen(false)}
-                className="primitive-icon-button shrink-0
+                className="flex size-6 items-center justify-center shrink-0 rounded-md
                   text-ink-3 transition-colors duration-100 hover:bg-hover hover:text-ink"
               >
                 <svg
@@ -217,8 +217,8 @@ export default function ApprovalCard() {
           </div>
         )}
 
-        {/* footer - ring-dot pager + send arrow */}
-        <div className="primitive-card-footer p-4 flex items-center justify-between border-t border-line-strong">
+        {/* footer — ring-dot pager + send arrow */}
+        <div className="flex items-center justify-between border-t border-[var(--line)] bg-[var(--inset)] p-2">
           <span className="flex items-center gap-2">
             <button
               type="button"

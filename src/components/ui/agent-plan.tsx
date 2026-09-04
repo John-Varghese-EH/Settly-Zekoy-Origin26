@@ -35,9 +35,8 @@ interface Task {
 const initialTasks: Task[] = [
   {
     id: "1",
-    title: "Research Project Requirements",
-    description:
-      "Gather all necessary information about project scope and requirements",
+    title: "1. Request Analysis",
+    description: "Sanitize and interpret the input",
     status: "in-progress",
     priority: "high",
     level: 0,
@@ -45,185 +44,115 @@ const initialTasks: Task[] = [
     subtasks: [
       {
         id: "1.1",
-        title: "Interview stakeholders",
-        description:
-          "Conduct interviews with key stakeholders to understand needs",
-        status: "completed",
+        title: "Scrub PII from input",
+        description: "Remove sensitive card numbers, SSNs, and emails",
+        status: "pending",
         priority: "high",
-        tools: ["communication-agent", "meeting-scheduler"],
+        tools: ["pii-scrubber"],
       },
       {
         id: "1.2",
-        title: "Review existing documentation",
-        description:
-          "Go through all available documentation and extract requirements",
-        status: "in-progress",
-        priority: "medium",
-        tools: ["file-system", "browser"],
-      },
-      {
-        id: "1.3",
-        title: "Compile findings report",
-        description:
-          "Create a comprehensive report of all gathered information",
-        status: "need-help",
-        priority: "medium",
-        tools: ["file-system", "markdown-processor"],
+        title: "Classify intent",
+        description: "Determine if this is a lookup, compare, or general query",
+        status: "pending",
+        priority: "high",
+        tools: ["gemini-3.6-flash"],
       },
     ],
   },
   {
     id: "2",
-    title: "Design System Architecture",
-    description: "Create the overall system architecture based on requirements",
-    status: "in-progress",
+    title: "2. Data Retrieval & Reconciliation",
+    description: "Fetch cross-system records",
+    status: "pending",
     priority: "high",
     level: 0,
-    dependencies: [],
+    dependencies: ["1"],
     subtasks: [
       {
         id: "2.1",
-        title: "Define component structure",
-        description: "Map out all required components and their interactions",
+        title: "Query Supabase Tables",
+        description: "Fetch from GatewayLogs, BankSettlements, and Ledger",
         status: "pending",
         priority: "high",
-        tools: ["architecture-planner", "diagramming-tool"],
+        tools: ["supabase-client"],
       },
       {
         id: "2.2",
-        title: "Create data flow diagrams",
-        description:
-          "Design diagrams showing how data will flow through the system",
-        status: "pending",
-        priority: "medium",
-        tools: ["diagramming-tool", "file-system"],
-      },
-      {
-        id: "2.3",
-        title: "Document API specifications",
-        description: "Write detailed specifications for all APIs in the system",
+        title: "Run reconciliation rules",
+        description: "Cross-verify amounts, timestamps, and statuses",
         status: "pending",
         priority: "high",
-        tools: ["api-designer", "openapi-generator"],
+        tools: ["reconciliation-engine"],
       },
     ],
   },
   {
     id: "3",
-    title: "Implementation Planning",
-    description: "Create a detailed plan for implementing the system",
+    title: "3. Insight Synthesis",
+    description: "Generate structured output",
     status: "pending",
-    priority: "medium",
-    level: 1,
-    dependencies: ["1", "2"],
+    priority: "high",
+    level: 0,
+    dependencies: ["2"],
     subtasks: [
       {
         id: "3.1",
-        title: "Resource allocation",
-        description: "Determine required resources and allocate them to tasks",
-        status: "pending",
-        priority: "medium",
-        tools: ["project-manager", "resource-calculator"],
-      },
-      {
-        id: "3.2",
-        title: "Timeline development",
-        description: "Create a timeline with milestones and deadlines",
+        title: "Synthesize findings",
+        description: "Generate executive summary and flags",
         status: "pending",
         priority: "high",
-        tools: ["timeline-generator", "gantt-chart-creator"],
-      },
-      {
-        id: "3.3",
-        title: "Risk assessment",
-        description:
-          "Identify potential risks and develop mitigation strategies",
-        status: "pending",
-        priority: "medium",
-        tools: ["risk-analyzer"],
+        tools: ["gemini-3.6-flash"],
       },
     ],
-  },
-  {
-    id: "4",
-    title: "Development Environment Setup",
-    description: "Set up all necessary tools and environments for development",
-    status: "in-progress",
-    priority: "high",
-    level: 0,
-    dependencies: [],
-    subtasks: [
-      {
-        id: "4.1",
-        title: "Install development tools",
-        description:
-          "Set up IDEs, version control, and other necessary development tools",
-        status: "pending",
-        priority: "high",
-        tools: ["shell", "package-manager"],
-      },
-      {
-        id: "4.2",
-        title: "Configure CI/CD pipeline",
-        description: "Set up continuous integration and deployment pipelines",
-        status: "pending",
-        priority: "medium",
-        tools: ["github-actions", "gitlab-ci", "jenkins-connector"],
-      },
-      {
-        id: "4.3",
-        title: "Set up testing framework",
-        description: "Configure automated testing frameworks for the project",
-        status: "pending",
-        priority: "high",
-        tools: ["test-runner", "shell"],
-      },
-    ],
-  },
-  {
-    id: "5",
-    title: "Initial Development Sprint",
-    description: "Execute the first development sprint based on the plan",
-    status: "pending",
-    priority: "medium",
-    level: 1,
-    dependencies: ["4"],
-    subtasks: [
-      {
-        id: "5.1",
-        title: "Implement core features",
-        description:
-          "Develop the essential features identified in the requirements",
-        status: "pending",
-        priority: "high",
-        tools: ["code-assistant", "github", "file-system", "shell"],
-      },
-      {
-        id: "5.2",
-        title: "Perform unit testing",
-        description: "Create and execute unit tests for implemented features",
-        status: "pending",
-        priority: "medium",
-        tools: ["test-runner", "code-coverage-analyzer"],
-      },
-      {
-        id: "5.3",
-        title: "Document code",
-        description: "Create documentation for the implemented code",
-        status: "pending",
-        priority: "low",
-        tools: ["documentation-generator", "markdown-processor"],
-      },
-    ],
-  },
+  }
 ];
 
-export default function AgentPlan() {
+export default function Plan() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [expandedTasks, setExpandedTasks] = useState<string[]>(["1"]);
+  const [expandedTasks, setExpandedTasks] = useState<string[]>(["1", "2", "3"]);
   const [expandedSubtasks, setExpandedSubtasks] = useState<{
     [key: string]: boolean;
   }>({});
+  
+  // Fast progression simulation
+  React.useEffect(() => {
+    let currentTask = 0;
+    let currentSubtask = 0;
+    
+    const interval = setInterval(() => {
+      setTasks(prev => {
+        const next = [...prev];
+        if (currentTask >= next.length) {
+          clearInterval(interval);
+          return next;
+        }
+        
+        const task = {...next[currentTask]};
+        const subtasks = [...task.subtasks];
+        
+        if (currentSubtask < subtasks.length) {
+          subtasks[currentSubtask] = { ...subtasks[currentSubtask], status: "completed" };
+          task.subtasks = subtasks;
+          next[currentTask] = task;
+          currentSubtask++;
+        } else {
+          task.status = "completed";
+          next[currentTask] = task; // update the old task first
+          currentTask++;
+          currentSubtask = 0;
+          if (currentTask < next.length) {
+            next[currentTask] = { ...next[currentTask], status: "in-progress" };
+          }
+        }
+        
+        return next;
+      });
+    }, 250); // ultrafast 250ms animation
+    
+    return () => clearInterval(interval);
+  }, []);
+
   // Add support for reduced motion preference
   const prefersReducedMotion = 
     typeof window !== 'undefined' 
@@ -342,7 +271,7 @@ export default function AgentPlan() {
         duration: 0.25, 
         staggerChildren: prefersReducedMotion ? 0 : 0.05,
         when: "beforeChildren",
-        ease: [0.2, 0.65, 0.3, 0.9] as const // Custom easing curve for Apple-like feel
+        ease: [0.2, 0.65, 0.3, 0.9] as any as any // Custom easing curve for Apple-like feel
       }
     },
     exit: {
@@ -351,7 +280,7 @@ export default function AgentPlan() {
       overflow: "hidden",
       transition: { 
         duration: 0.2,
-        ease: [0.2, 0.65, 0.3, 0.9] as const
+        ease: [0.2, 0.65, 0.3, 0.9] as any
       }
     }
   };
@@ -390,7 +319,7 @@ export default function AgentPlan() {
       overflow: "visible",
       transition: { 
         duration: 0.25,
-        ease: [0.2, 0.65, 0.3, 0.9] as const
+        ease: [0.2, 0.65, 0.3, 0.9] as any
       }
     }
   };
@@ -402,7 +331,7 @@ export default function AgentPlan() {
       scale: prefersReducedMotion ? 1 : [1, 1.08, 1],
       transition: { 
         duration: 0.35,
-        ease: [0.34, 1.56, 0.64, 1] as const // Springy custom easing for bounce effect
+        ease: [0.34, 1.56, 0.64, 1] as any // Springy custom easing for bounce effect
       }
     }
   };
@@ -410,20 +339,23 @@ export default function AgentPlan() {
   return (
     <div className="bg-background text-foreground h-full overflow-auto p-2">
       <motion.div 
-        className="bg-card border-border rounded-lg border shadow overflow-hidden"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ 
-          opacity: 1, 
-          y: 0,
-          transition: {
-            duration: 0.3,
-            ease: [0.2, 0.65, 0.3, 0.9] as const
-          }
+        layout
+        className="relative overflow-hidden rounded-xl border w-full max-w-full text-sm font-sans"
+        style={{
+          background: "linear-gradient(180deg, rgba(20,20,25,0.8) 0%, rgba(10,10,15,0.95) 100%)",
+          borderColor: "rgba(255,255,255,0.08)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)"
         }}
+        initial={{ opacity: 0, y: 10, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] as any }}
       >
         <LayoutGroup>
-          <div className="p-4 overflow-hidden">
-            <ul className="space-y-1 overflow-hidden">
+          <div className="p-4 overflow-hidden relative">
+            {/* Ambient background glow */}
+            <div className="absolute -top-24 -left-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+            
+            <ul className="space-y-1 overflow-hidden relative z-10">
               {tasks.map((task, index) => {
                 const isExpanded = expandedTasks.includes(task.id);
                 const isCompleted = task.status === "completed";
@@ -461,19 +393,21 @@ export default function AgentPlan() {
                             exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
                             transition={{
                               duration: 0.2,
-                              ease: [0.2, 0.65, 0.3, 0.9] as const
+                              ease: [0.2, 0.65, 0.3, 0.9] as any
                             }}
                           >
                             {task.status === "completed" ? (
-                              <CheckCircle2 className="h-4.5 w-4.5 text-green-500" />
+                              <CheckCircle2 className="h-4.5 w-4.5" style={{ color: "var(--accent-success, #10b981)", filter: "drop-shadow(0 0 4px rgba(16,185,129,0.4))" }} />
                             ) : task.status === "in-progress" ? (
-                              <CircleDotDashed className="h-4.5 w-4.5 text-blue-500" />
+                              <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }}>
+                                <CircleDotDashed className="h-4.5 w-4.5" style={{ color: "var(--accent-brand, #6366f1)", filter: "drop-shadow(0 0 4px rgba(99,102,241,0.5))" }} />
+                              </motion.div>
                             ) : task.status === "need-help" ? (
-                              <CircleAlert className="h-4.5 w-4.5 text-yellow-500" />
+                              <CircleAlert className="h-4.5 w-4.5" style={{ color: "var(--accent-warning, #f59e0b)" }} />
                             ) : task.status === "failed" ? (
-                              <CircleX className="h-4.5 w-4.5 text-red-500" />
+                              <CircleX className="h-4.5 w-4.5" style={{ color: "var(--accent-danger, #ef4444)" }} />
                             ) : (
-                              <Circle className="text-muted-foreground h-4.5 w-4.5" />
+                              <Circle className="h-4.5 w-4.5" style={{ color: "var(--text-tertiary, #9ca3af)" }} />
                             )}
                           </motion.div>
                         </AnimatePresence>
@@ -598,7 +532,7 @@ export default function AgentPlan() {
                                           exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
                                           transition={{
                                             duration: 0.2,
-                                            ease: [0.2, 0.65, 0.3, 0.9] as const
+                                            ease: [0.2, 0.65, 0.3, 0.9]
                                           }}
                                         >
                                           {subtask.status === "completed" ? (

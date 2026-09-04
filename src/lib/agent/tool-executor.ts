@@ -30,6 +30,9 @@ export async function executeTool(intent: ClassifiedIntent): Promise<ToolResult>
       const records = await getTransactionsByDateRange(intent.date_range.from, intent.date_range.to);
       result.data = records;
       result.success = true;
+    } else if (intent.intent === 'general_question') {
+      result.success = true;
+      result.data = null;
     } else {
       result.errors.push(`Unhandled intent: ${intent.intent}`);
     }

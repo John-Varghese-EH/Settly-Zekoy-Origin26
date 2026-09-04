@@ -5,6 +5,8 @@ import { PipelineStageInfo } from '@/types/pipeline';
 import { StructuredMessage, StructuredResponse } from './StructuredMessage';
 import { MinimisedTracePill, TracePanelState } from './TracePanel';
 import { AnimatePresence } from 'framer-motion';
+import { AgentDock } from '@/components/ui/agent-dock';
+import AgentPlan from '@/components/ui/agent-plan';
 
 interface ChatPanelProps {
   messages: ChatMessage[];
@@ -33,8 +35,6 @@ export function ChatPanel({
   timelineCard
 }: ChatPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [input, setInput] = useState('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -42,31 +42,14 @@ export function ChatPanel({
     }
   }, [messages, isLoading, pipelineStage]);
 
-  // Open the trace panel automatically if we get a new timeline card
+  // Open the trace panel automatically if we get a new timeline card or any response
   useEffect(() => {
-    if (timelineCard && tracePanelState === 'closed') {
+    if (timelineCard && (tracePanelState === 'closed' || tracePanelState === 'minimized')) {
       setTracePanelState('open');
     }
   }, [timelineCard, tracePanelState, setTracePanelState]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      if (input.trim() && !isLoading) {
-        onSendMessage(input.trim());
-        setInput('');
-      }
-    }
-  };
-
   const isEmpty = messages.length <= 1; // 1 is the welcome message in useChat
-
-  const handleSendMessage = () => {
-    if (input.trim() && !isLoading) {
-      onSendMessage(input.trim());
-      setInput('');
-    }
-  };
 
   // Convert ChatMessage to StructuredResponse for the agent messages
   const mapToStructured = (msg: ChatMessage): StructuredResponse => {
@@ -106,7 +89,7 @@ export function ChatPanel({
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-lg">
               {AGENT_SUGGESTIONS.map((s, i) => (
-                <button key={i} onClick={() => setInput(s)} className="text-left px-4 py-3 rounded-xl text-sm leading-snug transition-all" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", color: "var(--card-foreground)" }}
+                <button key={i} onClick={() => { if (!isLoading) onSendMessage(s); }} className="text-left px-4 py-3 rounded-xl text-sm leading-snug transition-all" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", color: "var(--card-foreground)" }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.07)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--border-bright)"; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--border)"; }}
                 >
@@ -133,7 +116,7 @@ export function ChatPanel({
               </div>
             ))}
             {isLoading && (
-              <div className="message-enter">
+              <div className="message-enter w-full max-w-full">
                 <div className="flex gap-2.5 items-start mb-2">
                   <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5" style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)" }}>
                     <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style={{ color: "var(--foreground)" }}>
@@ -141,11 +124,8 @@ export function ChatPanel({
                       <path d="M1.5 10c0-2.21 1.79-4 4-4s4 1.79 4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
                     </svg>
                   </div>
-                  <div className="px-4 py-3.5 rounded-2xl rounded-tl-sm text-sm leading-relaxed flex items-center gap-2" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "var(--card-foreground)" }}>
-                    <div className="flex items-center gap-1">
-                      {[0, 1, 2].map(i => <span key={i} className="animate-typing-dot w-1.5 h-1.5 rounded-full" style={{ background: "var(--muted-foreground)" }} />)}
-                    </div>
-                    <span className="text-xs text-[var(--muted-foreground)] ml-2">{pipelineStage?.label || 'Processing...'}</span>
+                  <div className="w-full">
+                    <AgentPlan />
                   </div>
                 </div>
               </div>
@@ -166,34 +146,18 @@ export function ChatPanel({
       {/* Input */}
       <div className="shrink-0 px-4 pb-5 pt-2 relative z-10 bg-[var(--bg-chat)]">
         <div className="max-w-2xl mx-auto">
-          <div className="flex flex-col rounded-2xl input-glow transition-all" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.10)" }}>
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Trace a transaction, flag an exception, or run a forecast…"
-              rows={1}
-              className="w-full px-4 pt-3.5 pb-2 bg-transparent text-sm leading-relaxed resize-none focus:outline-none"
-              style={{ color: "var(--foreground)", minHeight: "52px", maxHeight: "200px" }}
-            />
-            <div className="flex items-center justify-between px-3 pb-3 pt-1">
-              <div className="flex items-center gap-1">
-                <button className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg text-xs transition-colors hover:bg-white/5" style={{ color: "var(--muted-foreground)" }}>
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M11.5 6.5l-5 5a3.75 3.75 0 01-5.3-5.3l5-5a2.5 2.5 0 013.54 3.54l-5 5a1.25 1.25 0 01-1.77-1.77l4.5-4.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                  Attach
-                </button>
-              </div>
-              <button
-                onClick={handleSendMessage}
-                disabled={!input.trim() || isLoading}
-                className="w-7 h-7 rounded-xl flex items-center justify-center transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ background: input.trim() ? "var(--primary)" : "rgba(255,255,255,0.06)", color: input.trim() ? "var(--primary-foreground)" : "var(--muted-foreground)" }}
-              >
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 10.5V1.5M6 1.5L2.5 5M6 1.5L9.5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              </button>
-            </div>
-          </div>
+          <AgentDock
+            agentName="Settly"
+            avatarSrc="https://cdn.21st.dev/assets/mirror/0e/0eb56130c1d872f702d99f0e4449feee3bad82c30ab14db063ace0927ae5a038.svg"
+            idleStatus="Ready to assist"
+            workingStatus={pipelineStage?.label || "Working..."}
+            forceMode={isLoading ? "working" : undefined}
+            onMessageSubmit={(msg) => {
+              if (msg.trim() && !isLoading) {
+                onSendMessage(msg.trim());
+              }
+            }}
+          />
           <p className="text-center text-[11px] mt-2" style={{ color: "rgba(128,128,128,0.35)" }}>
             Settly may make errors. Always verify critical financial data before acting.
           </p>
