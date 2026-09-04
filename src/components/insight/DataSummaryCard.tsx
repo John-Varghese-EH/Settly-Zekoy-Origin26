@@ -12,6 +12,7 @@ export function DataSummaryCard({ record }: DataSummaryCardProps) {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderSection = (title: string, data: any) => {
     if (!data) return null;
     return (

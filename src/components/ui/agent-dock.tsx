@@ -12,20 +12,18 @@ import {
   type ReactNode,
   useRef,
   useState,
-  useEffect
 } from "react";
 
 type AgentDockMode = "idle" | "composing" | "working";
 
-type AgentDockProps = {
+interface AgentDockProps {
   agentName: string;
-  avatarSrc: string;
   className?: string;
   idleStatus?: string;
   workingStatus?: string;
   onMessageSubmit?: (message: string) => void | Promise<void>;
   forceMode?: AgentDockMode;
-};
+}
 
 const dockTransition = {
   duration: 0.3,
@@ -34,27 +32,20 @@ const dockTransition = {
 
 export function AgentDock({
   agentName,
-  avatarSrc,
   className,
   idleStatus = "Ready",
   workingStatus = "Working...",
   onMessageSubmit,
   forceMode
 }: AgentDockProps) {
-  const [mode, setMode] = useState<AgentDockMode>("idle");
+  const [internalMode, setInternalMode] = useState<AgentDockMode>("idle");
+  const mode = forceMode || internalMode;
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const shouldReduceMotion = useReducedMotion();
 
-  // Allow external control of the mode (e.g. while fetching)
-  useEffect(() => {
-    if (forceMode) {
-      setMode(forceMode);
-    }
-  }, [forceMode]);
-
   function openComposer() {
-    setMode("composing");
+    setInternalMode("composing");
     window.requestAnimationFrame(() => textareaRef.current?.focus());
   }
 
@@ -65,7 +56,7 @@ export function AgentDock({
       return;
     }
     setMessage("");
-    if (!forceMode) setMode("working");
+    if (!forceMode) setInternalMode("working");
     await onMessageSubmit?.(nextMessage);
   }
 
@@ -149,7 +140,7 @@ export function AgentDock({
             <button
               aria-label="Close composer"
               className="absolute right-1.5 top-1.5 flex size-6 items-center justify-center rounded-md text-neutral-400 hover:bg-white/10 hover:text-white transition-colors"
-              onClick={() => { if (!forceMode) setMode("idle"); }}
+              onClick={() => { if (!forceMode) setInternalMode("idle"); }}
               type="button"
             >
               <XIcon className="size-3.5" weight="bold" />

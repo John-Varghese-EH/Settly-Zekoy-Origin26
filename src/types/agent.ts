@@ -5,7 +5,7 @@ export interface InsightCard {
   type: InsightCardType;
   title: string;
   data: unknown;
-  mismatches?: any;
+  mismatches?: Record<string, unknown> | null;
   missingSources?: string[];
   foundSources?: string[];
   priority: 'high' | 'medium' | 'low';

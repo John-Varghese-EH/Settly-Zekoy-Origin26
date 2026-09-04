@@ -75,7 +75,7 @@ Reconciliation: ${JSON.stringify(reconciliation, null, 2)}
       id: 'summary-amt-' + Date.now(),
       type: 'summary',
       title: 'Amount',
-      data: (toolResult.data as any).gateway?.amount || (toolResult.data as any).bank?.amount || (toolResult.data as any).ledger?.amount || 'N/A',
+      data: (toolResult.data as Record<string, {amount?: number}>).gateway?.amount || (toolResult.data as Record<string, {amount?: number}>).bank?.amount || (toolResult.data as Record<string, {amount?: number}>).ledger?.amount || 'N/A',
       priority: 'low'
     });
   } else if (Array.isArray(toolResult.data) && toolResult.tool_name === 'list_exceptions') {
@@ -99,11 +99,14 @@ Reconciliation: ${JSON.stringify(reconciliation, null, 2)}
   }
 
   if (toolResult.errors.length > 0 || (reconciliation?.missingFrom && reconciliation.missingFrom.length > 0)) {
+    const errorMsg = toolResult.errors.length > 0 ? `Errors: ${toolResult.errors.join(', ')}` : '';
+    const missingMsg = reconciliation?.missingFrom && reconciliation.missingFrom.length > 0 ? `Missing from: ${reconciliation.missingFrom.join(', ')}` : '';
+    
     insightCards.push({
       id: 'exc-' + Date.now(),
       type: 'exception',
-      title: 'Missing Data / Execution Errors',
-      data: { errors: toolResult.errors, missingFrom: reconciliation?.missingFrom },
+      title: toolResult.errors.length > 0 ? 'Execution Error' : 'Missing Records',
+      data: [errorMsg, missingMsg].filter(Boolean).join(' | '),
       priority: 'high'
     });
   }

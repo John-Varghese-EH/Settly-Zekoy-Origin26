@@ -16,9 +16,11 @@ export function useTheme() {
     // Read from localStorage or system preference on mount
     const stored = localStorage.getItem('settly-theme') as Theme;
     if (stored) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTheme(stored);
     } else {
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTheme(isDark ? 'dark' : 'light');
     }
 

@@ -2,12 +2,14 @@
 
 import { useState, useRef, useEffect } from "react";
 import { User } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 export type SidebarView = "chat" | "exceptions" | "history" | "settings";
 
 export interface Conversation {
   id: string;
   title: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lastTrace?: any;
 }
 
@@ -21,10 +23,13 @@ export interface SidebarProps {
   onNewChat: (title: string) => void;
   onRename: (id: string, title: string) => void;
   onDelete: (id: string) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onTxnSelect: (t: any) => void;
   user?: User | null;
   onSignOut?: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   exceptions: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   transactions: any[];
 }
 
@@ -239,7 +244,8 @@ function SidebarContent({ view, conversations, activeId, onSelect, onNewChat, on
 }
 
 export function Sidebar(props: SidebarProps) {
-  const { open, view, onViewChange, user, onSignOut, conversations, activeId, onSelect, onNewChat, onRename, onDelete, onTxnSelect, exceptions, transactions } = props;
+  const router = useRouter();
+  const { open, view, onViewChange, user, onSignOut } = props;
   const initials = user?.displayName
     ? user.displayName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()
     : user?.email?.[0]?.toUpperCase() ?? "S";
@@ -265,7 +271,7 @@ export function Sidebar(props: SidebarProps) {
         <div className="flex-1" />
         {/* Admin Link */}
         <button
-          onClick={() => window.location.href = '/admin'}
+          onClick={() => { router.push('/admin'); }}
           title="Admin Console"
           className="w-8 h-8 rounded-lg flex items-center justify-center transition-all mb-1 group"
           style={{ color: "var(--text-secondary)" }}
@@ -291,7 +297,10 @@ export function Sidebar(props: SidebarProps) {
         )}
         <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mb-2 overflow-hidden" style={{ background: "var(--accent-brand)", color: "#fff" }}>
           {user?.photoURL
-            ? <img src={user.photoURL} alt="" className="w-full h-full object-cover" />
+            ? <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={user.photoURL} alt="" className="w-full h-full object-cover" />
+            </>
             : initials}
         </div>
       </div>

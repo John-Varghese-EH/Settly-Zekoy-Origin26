@@ -53,8 +53,8 @@ export function TransactionTimeline({ record }: TimelineProps) {
                 </h4>
                 {node.data ? (
                   <Badge 
-                    status={(node.data as any).status === 'settled' || (node.data as any).status === 'success' || (node.data as any).status === 'posted' || (node.data as any).status === 'captured' ? 'success' : 'warning'} 
-                    label={(node.data as any).status.toUpperCase()} 
+                    status={(node.data as {status: string}).status === 'settled' || (node.data as {status: string}).status === 'success' || (node.data as {status: string}).status === 'posted' || (node.data as {status: string}).status === 'captured' ? 'success' : 'warning'} 
+                    label={(node.data as {status: string}).status.toUpperCase()} 
                     animated={false}
                   />
                 ) : (
@@ -65,10 +65,10 @@ export function TransactionTimeline({ record }: TimelineProps) {
               {node.data ? (
                 <div className="bg-[var(--bg-elevated)] p-3 rounded-[var(--radius-sm)] border border-[var(--border-subtle)] flex justify-between items-center">
                   <span className="font-mono text-lg font-semibold text-[var(--text-primary)]">
-                    {formatCurrency(node.data.amount, (node.data as any).currency || 'USD')}
+                    {formatCurrency(node.data.amount, (node.data as {currency?: string}).currency || 'USD')}
                   </span>
                   <span className="text-xs text-[var(--text-secondary)] font-mono bg-black/5 dark:bg-white/5 px-2 py-1 rounded">
-                    {new Date((node.data as any).gateway_timestamp || (node.data as any).bank_timestamp || (node.data as any).ledger_timestamp || '').toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}
+                    {new Date((node.data as {gateway_timestamp?: string, bank_timestamp?: string, ledger_timestamp?: string}).gateway_timestamp || (node.data as {gateway_timestamp?: string, bank_timestamp?: string, ledger_timestamp?: string}).bank_timestamp || (node.data as {gateway_timestamp?: string, bank_timestamp?: string, ledger_timestamp?: string}).ledger_timestamp || '').toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}
                   </span>
                 </div>
               ) : (

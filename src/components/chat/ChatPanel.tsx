@@ -19,10 +19,10 @@ interface ChatPanelProps {
 }
 
 const AGENT_SUGGESTIONS = [
-  "Trace TXN-005 - check amount mismatch",
+  "Trace TXN-2013 - check amount mismatch",
   "List all recent exceptions",
-  "Why is TXN-015 showing a timing anomaly?",
-  "Analyse transactions between 2024-01-01 and today",
+  "Why is TXN-2004 showing a timing anomaly?",
+  "Analyse transactions between 2026-09-01 and today",
 ];
 
 export function ChatPanel({ 
@@ -47,9 +47,11 @@ export function ChatPanel({
 
   useEffect(() => {
     if (timelineCard) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const currentTraceId = (timelineCard.data as any)?.gateway?.transaction_id || timelineCard.title;
       if (currentTraceId !== lastTraceId) {
         setTracePanelState('open');
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setLastTraceId(currentTraceId);
       }
     }
@@ -64,6 +66,7 @@ export function ChatPanel({
       exceptionCard: msg.insightCards?.find(c => c.type === 'exception'),
       metricsCards: msg.insightCards?.filter(c => c.type === 'summary'),
       hasTrace: !!msg.insightCards?.find(c => c.type === 'timeline'),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       txnId: (msg.insightCards?.find(c => c.type === 'timeline')?.data as any)?.gateway?.transaction_id || undefined
     };
   };
@@ -154,9 +157,8 @@ export function ChatPanel({
         <div className="max-w-2xl mx-auto">
           <AgentDock
             agentName="Settly"
-            avatarSrc="https://cdn.21st.dev/assets/mirror/0e/0eb56130c1d872f702d99f0e4449feee3bad82c30ab14db063ace0927ae5a038.svg"
             idleStatus="Ready to assist"
-            workingStatus={pipelineStage?.label || "Working..."}
+            workingStatus={pipelineStage ? pipelineStage.label + "..." : "Tracing across Gateway, Bank, Ledger..."}
             forceMode={isLoading ? "working" : undefined}
             onMessageSubmit={(msg) => {
               if (msg.trim() && !isLoading) {

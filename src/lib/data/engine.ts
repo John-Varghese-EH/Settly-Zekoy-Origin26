@@ -3,7 +3,7 @@ import { GatewayLog, BankSettlement, LedgerEntry, TransactionRecord } from '@/ty
 
 export async function getGatewayLog(transactionId: string): Promise<GatewayLog | null> {
   const db = getDb();
-  const row = db.prepare('SELECT * FROM gateway_logs WHERE transaction_id = ?').get(transactionId) as any;
+  const row = db.prepare('SELECT * FROM gateway_logs WHERE transaction_id = ?').get(transactionId) as { metadata?: string; [k: string]: unknown } | undefined;
   if (!row) return null;
   return {
     ...row,
@@ -13,13 +13,13 @@ export async function getGatewayLog(transactionId: string): Promise<GatewayLog |
 
 export async function getBankSettlement(transactionId: string): Promise<BankSettlement | null> {
   const db = getDb();
-  const row = db.prepare('SELECT * FROM bank_settlements WHERE transaction_id = ?').get(transactionId) as any;
+  const row = db.prepare('SELECT * FROM bank_settlements WHERE transaction_id = ?').get(transactionId) as BankSettlement | undefined;
   return (row as BankSettlement) || null;
 }
 
 export async function getLedgerEntry(transactionId: string): Promise<LedgerEntry | null> {
   const db = getDb();
-  const row = db.prepare('SELECT * FROM ledger_entries WHERE transaction_id = ?').get(transactionId) as any;
+  const row = db.prepare('SELECT * FROM ledger_entries WHERE transaction_id = ?').get(transactionId) as { reconciliation_flag?: number; [k: string]: unknown } | undefined;
   if (!row) return null;
   return {
     ...row,

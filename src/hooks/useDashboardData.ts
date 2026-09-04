@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { TransactionRecord } from '@/types/transaction';
 
 export interface UIException {
   id: string;
@@ -30,10 +31,10 @@ export function useDashboardData() {
       .then(res => res.json())
       .then(data => {
         if (data.exceptions) {
-          const uiExc = data.exceptions.map((e: any) => ({
+          const uiExc = data.exceptions.map((e: TransactionRecord) => ({
             id: e.gateway?.transaction_id || Math.random().toString(),
-            label: e.gateway?.amount > 50 ? 'Critical Failure' : 'Warning',
-            severity: e.gateway?.amount > 50 ? 'critical' : 'warning',
+            label: (e.gateway?.amount || 0) > 10000 ? 'Critical Failure' : 'Warning',
+            severity: (e.gateway?.amount || 0) > 10000 ? 'critical' : 'warning',
             resolved: false,
             txnId: e.gateway?.transaction_id,
             code: 'SYNC_FAIL',
@@ -43,13 +44,13 @@ export function useDashboardData() {
           setExceptions(uiExc);
         }
         if (data.transactions) {
-          const uiTxns = data.transactions.map((t: any) => ({
+          const uiTxns = data.transactions.map((t: TransactionRecord) => ({
             id: t.gateway?.transaction_id,
             status: t.bank?.status === 'rejected' ? 'failed' : (t.ledger ? 'settled' : 'pending'),
             merchant: t.gateway?.merchant_id || 'Unknown',
-            type: 'Payment',
-            bank: 'GlobalBank',
-            amount: `$${t.gateway?.amount}`
+            type: String(t.gateway?.card_last_four || '').includes('@') ? 'UPI Mandate' : 'Card Payment',
+            bank: 'Acquiring Bank',
+            amount: new Intl.NumberFormat('en-IN', { style: 'currency', currency: t.gateway?.currency || 'INR' }).format(t.gateway?.amount || 0)
           }));
           setTransactions(uiTxns);
         }

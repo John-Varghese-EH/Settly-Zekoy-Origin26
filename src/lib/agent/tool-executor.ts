@@ -20,6 +20,12 @@ export async function executeTool(intent: ClassifiedIntent): Promise<ToolResult>
           return result;
         }
         const record = await getTransactionRecord(intent.transaction_id);
+        
+        if (!record.gateway && !record.bank && !record.ledger) {
+          result.errors.push(`Transaction ${intent.transaction_id} not found in any system.`);
+          return result;
+        }
+        
         const reconciliation = reconcileTransaction(record);
         result.data = record;
         result.metadata.reconciliation = reconciliation;

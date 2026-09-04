@@ -10,7 +10,6 @@ export default function Default() {
     <div className="flex min-h-screen w-full items-center justify-center bg-[var(--bg-chat)] p-8">
       <AgentDock
         agentName="Zara"
-        avatarSrc={avatarSrc}
         className="w-full max-w-md"
         idleStatus="Your hyperaide"
         onMessageSubmit={async () => {

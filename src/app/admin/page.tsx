@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface ElevatedRequest {
   gateway?: { transaction_id: string; amount: number; merchant_id: string; gateway_timestamp: string };
-  bank?: any;
-  ledger?: any;
+  bank?: unknown;
+  ledger?: unknown;
 }
 
 export default function AdminDashboard() {
@@ -55,7 +55,10 @@ export default function AdminDashboard() {
                 <rect x="7" y="7" width="4" height="4" rx="1" fill="var(--bg-primary)" />
               </svg>
             </div>
-            <span className="font-semibold text-sm tracking-tight" style={{ color: "var(--text-primary)" }}>Settly</span>
+            <span className="font-semibold text-sm tracking-tight flex items-baseline gap-[2px]" style={{ color: "var(--text-primary)" }}>
+              Settly
+              <span className="text-[8px] font-bold tracking-widest text-indigo-400 opacity-80 leading-none">ZEKOY</span>
+            </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full" style={{ background: "var(--accent-danger-subtle)", color: "var(--accent-danger)", border: "1px solid var(--accent-danger-subtle)" }}>
               ADMIN CONSOLE
             </span>

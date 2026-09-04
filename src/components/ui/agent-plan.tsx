@@ -235,7 +235,8 @@ export default function Plan() {
   };
 
   // Animation variants with reduced motion support
-  const taskVariants = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const taskVariants: any = {
     hidden: { 
       opacity: 0, 
       y: prefersReducedMotion ? 0 : -5 
@@ -244,7 +245,7 @@ export default function Plan() {
       opacity: 1, 
       y: 0,
       transition: { 
-        type: (prefersReducedMotion ? "tween" : "spring") as any, 
+        type: (prefersReducedMotion ? "tween" : "spring") , 
         stiffness: 500, 
         damping: 30,
         duration: prefersReducedMotion ? 0.2 : undefined
@@ -257,7 +258,8 @@ export default function Plan() {
     }
   };
 
-  const subtaskListVariants = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const subtaskListVariants: any = {
     hidden: { 
       opacity: 0, 
       height: 0,
@@ -271,7 +273,7 @@ export default function Plan() {
         duration: 0.25, 
         staggerChildren: prefersReducedMotion ? 0 : 0.05,
         when: "beforeChildren",
-        ease: [0.2, 0.65, 0.3, 0.9] as any as any // Custom easing curve for Apple-like feel
+        ease: [0.2, 0.65, 0.3, 0.9]  // Custom easing curve for Apple-like feel
       }
     },
     exit: {
@@ -280,12 +282,13 @@ export default function Plan() {
       overflow: "hidden",
       transition: { 
         duration: 0.2,
-        ease: [0.2, 0.65, 0.3, 0.9] as any
+        ease: [0.2, 0.65, 0.3, 0.9] 
       }
     }
   };
 
-  const subtaskVariants = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const subtaskVariants: any = {
     hidden: { 
       opacity: 0, 
       x: prefersReducedMotion ? 0 : -10 
@@ -294,7 +297,7 @@ export default function Plan() {
       opacity: 1, 
       x: 0,
       transition: { 
-        type: (prefersReducedMotion ? "tween" : "spring") as any, 
+        type: (prefersReducedMotion ? "tween" : "spring") , 
         stiffness: 500, 
         damping: 25,
         duration: prefersReducedMotion ? 0.2 : undefined
@@ -307,7 +310,8 @@ export default function Plan() {
     }
   };
 
-  const subtaskDetailsVariants = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const subtaskDetailsVariants: any = {
     hidden: { 
       opacity: 0, 
       height: 0,
@@ -319,19 +323,20 @@ export default function Plan() {
       overflow: "visible",
       transition: { 
         duration: 0.25,
-        ease: [0.2, 0.65, 0.3, 0.9] as any
+        ease: [0.2, 0.65, 0.3, 0.9] 
       }
     }
   };
 
   // Status badge animation variants
-  const statusBadgeVariants = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const statusBadgeVariants: any = {
     initial: { scale: 1 },
     animate: { 
       scale: prefersReducedMotion ? 1 : [1, 1.08, 1],
       transition: { 
         duration: 0.35,
-        ease: [0.34, 1.56, 0.64, 1] as any // Springy custom easing for bounce effect
+        ease: [0.34, 1.56, 0.64, 1]  // Springy custom easing for bounce effect
       }
     }
   };
@@ -348,7 +353,7 @@ export default function Plan() {
         }}
         initial={{ opacity: 0, y: 10, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] as any }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1]  }}
       >
         <LayoutGroup>
           <div className="p-4 overflow-hidden relative">
@@ -393,7 +398,7 @@ export default function Plan() {
                             exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
                             transition={{
                               duration: 0.2,
-                              ease: [0.2, 0.65, 0.3, 0.9] as any
+                              ease: [0.2, 0.65, 0.3, 0.9] 
                             }}
                           >
                             {task.status === "completed" ? (

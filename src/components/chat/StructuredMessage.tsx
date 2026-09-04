@@ -27,21 +27,21 @@ export function StructuredMessage({ response }: { response: StructuredResponse }
           <ReactMarkdown 
             remarkPlugins={[remarkGfm]}
             components={{
-              p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
-              strong: ({node, ...props}) => <strong className="font-semibold text-white" {...props} />,
-              ul: ({node, ...props}) => <ul className="list-disc pl-4 mb-2 space-y-1" {...props} />,
-              li: ({node, ...props}) => <li className="pl-1" {...props} />,
-              h1: ({node, ...props}) => <h1 className="text-lg font-semibold text-white mb-2 mt-3" {...props} />,
-              h2: ({node, ...props}) => <h2 className="text-md font-semibold text-white mb-2 mt-3" {...props} />,
-              h3: ({node, ...props}) => <h3 className="text-sm font-semibold text-white mb-1 mt-2" {...props} />,
-              table: ({node, ...props}) => (
+              p: ({node: _node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+              strong: ({node: _node, ...props}) => <strong className="font-semibold text-white" {...props} />,
+              ul: ({node: _node, ...props}) => <ul className="list-disc pl-4 mb-2 space-y-1" {...props} />,
+              li: ({node: _node, ...props}) => <li className="pl-1" {...props} />,
+              h1: ({node: _node, ...props}) => <h1 className="text-lg font-semibold text-white mb-2 mt-3" {...props} />,
+              h2: ({node: _node, ...props}) => <h2 className="text-md font-semibold text-white mb-2 mt-3" {...props} />,
+              h3: ({node: _node, ...props}) => <h3 className="text-sm font-semibold text-white mb-1 mt-2" {...props} />,
+              table: ({node: _node, ...props}) => (
                 <div className="overflow-x-auto my-3 border rounded-lg border-white/10">
                   <table className="w-full text-left border-collapse text-xs" {...props} />
                 </div>
               ),
-              th: ({node, ...props}) => <th className="border-b border-white/10 p-2 font-medium text-white/70 bg-white/5" {...props} />,
-              td: ({node, ...props}) => <td className="border-b border-white/5 p-2 align-top last:border-b-0" {...props} />,
-              code: ({node, ...props}) => <code className="px-1 py-0.5 rounded bg-white/10 font-mono text-[10px]" {...props} />
+              th: ({node: _node, ...props}) => <th className="border-b border-white/10 p-2 font-medium text-white/70 bg-white/5" {...props} />,
+              td: ({node: _node, ...props}) => <td className="border-b border-white/5 p-2 align-top last:border-b-0" {...props} />,
+              code: ({node: _node, ...props}) => <code className="px-1 py-0.5 rounded bg-white/10 font-mono text-[10px]" {...props} />
             }}
           >
             {response.verdict}
@@ -58,6 +58,11 @@ export function StructuredMessage({ response }: { response: StructuredResponse }
               {!!response.exceptionCard.data && typeof response.exceptionCard.data === 'object' && (
                 <p className="text-[10px] font-mono mt-1 leading-snug" style={{ color: "rgba(255,255,255,0.6)" }}>
                   {JSON.stringify(response.exceptionCard.data, null, 2)}
+                </p>
+              )}
+              {!!response.exceptionCard.data && typeof response.exceptionCard.data === 'string' && (
+                <p className="text-[11px] mt-1.5 leading-relaxed" style={{ color: "rgba(255,255,255,0.8)" }}>
+                  {response.exceptionCard.data}
                 </p>
               )}
             </div>

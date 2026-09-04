@@ -9,12 +9,12 @@ function parseCSV(filePath: string) {
   
   return lines.slice(1).map(line => {
     const values = line.split(',');
-    const obj: any = {};
+    const obj: Record<string, string | number> = {};
     headers.forEach((header, index) => {
-      let val = values[index]?.trim();
-      if (val === 'false') val = 0 as any; // SQLite stores booleans as 0/1
-      else if (val === 'true') val = 1 as any;
-      else if (!isNaN(Number(val)) && val !== '') val = Number(val) as any;
+      let val: string | number = values[index]?.trim();
+      if (val === 'false') val = 0; // SQLite stores booleans as 0/1
+      else if (val === 'true') val = 1;
+      else if (!isNaN(Number(val)) && val !== '') val = Number(val);
       
       obj[header] = val;
     });

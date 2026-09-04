@@ -13,7 +13,7 @@ export interface PipelineStageInfo {
 }
 
 export interface ClassifiedIntent {
-  intent: 'lookup' | 'compare' | 'explain_status' | 'list_exceptions' | 'general_question';
+  intent: 'lookup' | 'compare' | 'explain_status' | 'list_exceptions' | 'general_question' | 'auto_resolve_transaction';
   transaction_id: string | null;
   date_range?: {
     from: string;

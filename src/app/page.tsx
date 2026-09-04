@@ -18,7 +18,7 @@ import { SettingsDashboard } from '@/components/dashboard/SettingsDashboard';
 export default function Home() {
   const { user, loading: authLoading } = useAuth();
   const { messages, insightCards, isLoading, pipelineStage, sendMessage } = useChat();
-  const { exceptions, transactions, loading: dataLoading } = useDashboardData();
+  const { exceptions, transactions } = useDashboardData();
   
   const [sidebarView, setSidebarView] = useState<SidebarView>('chat');
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -26,7 +26,7 @@ export default function Home() {
   const { theme, toggleTheme } = useTheme();
 
   // Basic conversations mock for sidebar
-  const [conversations, setConversations] = useState<{id: string, title: string, lastTrace?: any}[]>([
+  const [conversations, setConversations] = useState<{id: string, title: string, lastTrace?: unknown}[]>([
     { id: '1', title: 'Trace TXN-005', lastTrace: { txnId: 'TXN-005' } }
   ]);
   const [activeConvId, setActiveConvId] = useState<string | null>('1');
@@ -110,7 +110,10 @@ export default function Home() {
                   <rect x="7" y="7" width="4" height="4" rx="1" fill="var(--bg-primary)" />
                 </svg>
               </div>
-              <span className="font-semibold text-sm tracking-tight" style={{ color: "var(--text-primary)" }}>Settly</span>
+              <span className="font-semibold text-sm tracking-tight flex items-baseline gap-[2px]" style={{ color: "var(--text-primary)" }}>
+                Settly
+                <span className="text-[8px] font-bold tracking-widest text-indigo-400 opacity-80 leading-none">ZEKOY</span>
+              </span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full" style={{ background: "var(--bg-elevated)", color: "var(--text-secondary)", border: "1px solid var(--border-strong)" }}>
                 FINTECH AI
               </span>

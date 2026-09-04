@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ChatMessage, InsightCard, AgentResponse } from '@/types/agent';
 import { PipelineStageInfo } from '@/types/pipeline';
 
