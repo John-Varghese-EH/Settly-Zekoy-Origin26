@@ -1,0 +1,5 @@
+transaction_id,debit_account,credit_account,amount,status,ledger_timestamp,reconciliation_flag
+TXN-1001,ACCT-REC,ACCT-REV,150.00,posted,2026-09-02T08:05:00Z,true
+TXN-1002,ACCT-REC,ACCT-REV,45.50,posted,2026-09-02T08:05:00Z,true
+TXN-1003,ACCT-REC,ACCT-REV,299.99,pending,2026-09-02T09:05:00Z,false
+TXN-1005,ACCT-REC,ACCT-REV,120.00,posted,2026-09-02T09:10:00Z,false

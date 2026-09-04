@@ -1,0 +1,6 @@
+transaction_id,merchant_id,amount,currency,card_last_four,status,gateway_timestamp
+TXN-1001,MERCH-A,150.00,USD,4242,captured,2026-09-01T10:00:00Z
+TXN-1002,MERCH-A,45.50,USD,1111,captured,2026-09-01T10:15:00Z
+TXN-1003,MERCH-B,299.99,USD,5555,authorized,2026-09-01T11:30:00Z
+TXN-1004,MERCH-C,85.00,USD,9999,failed,2026-09-01T14:45:00Z
+TXN-1005,MERCH-A,120.00,USD,4242,captured,2026-09-01T16:20:00Z
