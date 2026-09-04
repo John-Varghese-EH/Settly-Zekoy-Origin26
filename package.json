@@ -12,6 +12,7 @@
   "dependencies": {
     "@google/genai": "^1.0.0",
     "@phosphor-icons/react": "^2.1.10",
+    "better-sqlite3": "^13.0.3",
     "firebase": "^10.8.0",
     "firebase-admin": "^13.0.1",
     "framer-motion": "^13.2.0",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -35,5 +37,8 @@
     "tailwindcss": "^4",
     "tsx": "^4.19.0",
     "typescript": "^5"
+  },
+  "allowScripts": {
+    "better-sqlite3@13.0.3": true
   }
 }
