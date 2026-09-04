@@ -1,0 +1,104 @@
+@keyframes card-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(var(--rgb-accent), 0.4);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 8px 4px rgba(var(--rgb-accent), 0.1);
+  }
+}
+
+@keyframes typing-bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow-line {
+  0% { box-shadow: 0 0 4px rgba(var(--rgb-accent), 0.2); background-color: var(--border-strong); }
+  50% { box-shadow: 0 0 10px rgba(var(--rgb-accent), 0.6); background-color: var(--accent-brand); }
+  100% { box-shadow: 0 0 4px rgba(var(--rgb-accent), 0.2); background-color: var(--border-strong); }
+}
+
+.animate-glow-line {
+  animation: glow-line 2s infinite ease-in-out;
+}
+
+.animate-card-enter {
+  animation: card-entrance 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-typing-dot {
+  animation: typing-bounce 1.4s infinite ease-in-out both;
+}
+
+.animate-typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.animate-typing-dot:nth-child(2) { animation-delay: -0.16s; }
+.animate-typing-dot:nth-child(3) { animation-delay: 0s; }
+
+.stagger-1 { animation-delay: 100ms; opacity: 0; }
+.stagger-2 { animation-delay: 200ms; opacity: 0; }
+.stagger-3 { animation-delay: 300ms; opacity: 0; }
+.stagger-4 { animation-delay: 400ms; opacity: 0; }
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin-slow {
+  animation: spin-slow 12s linear infinite;
+}
+
+.input-glow:focus-within {
+  box-shadow: 0 0 0 1px var(--border-bright), 0 0 16px rgba(var(--rgb-primary, 255, 255, 255), 0.05);
+}
+
+.message-enter {
+  animation: slide-up 0.3s ease-out forwards;
+}
