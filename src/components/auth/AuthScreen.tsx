@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { signInWithGoogle, signInWithEmail, signUpWithEmail } from "@/lib/firebase/client";
+import { Zap, ShieldCheck, BarChart3, ScanSearch } from "lucide-react";
 
 type Mode = "signin" | "signup";
 
@@ -64,10 +65,10 @@ function SettlyWordmark() {
 }
 
 const FEATURES = [
-  { icon: "⚡", title: "Agentic Settlement Tracing", desc: "Trace any transaction across Gateway → Bank → Ledger in seconds" },
-  { icon: "🔍", title: "Anomaly & Exception Detection", desc: "AI flags duplicates, failed batches, and settlement gaps automatically" },
-  { icon: "📊", title: "Real-time Financial Intelligence", desc: "Forecasts, budget analysis, and spend insights on demand" },
-  { icon: "🔒", title: "Secure & Auditable", desc: "Every agent action is logged, traceable, and reversible" },
+  { icon: <Zap size={18} className="text-indigo-400" />, title: "Agentic Settlement Tracing", desc: "Trace any transaction across Gateway → Bank → Ledger in seconds" },
+  { icon: <ScanSearch size={18} className="text-indigo-400" />, title: "Anomaly & Exception Detection", desc: "AI flags duplicates, failed batches, and settlement gaps automatically" },
+  { icon: <BarChart3 size={18} className="text-indigo-400" />, title: "Real-time Financial Intelligence", desc: "Forecasts, budget analysis, and spend insights on demand" },
+  { icon: <ShieldCheck size={18} className="text-indigo-400" />, title: "Secure & Auditable", desc: "Every agent action is logged, traceable, and reversible" },
 ];
 
 const STATS = [
@@ -112,10 +113,10 @@ export function AuthScreen() {
   }
 
   return (
-    <div className="flex h-full overflow-hidden w-full absolute inset-0 z-50 text-white" style={{ background: "#050505", fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div className="flex h-full overflow-hidden w-full absolute inset-0 z-50 text-white" style={{ background: "#02040a", fontFamily: "'Inter', system-ui, sans-serif" }}>
 
       {/* ── Left panel ─────────────────────────────────────── */}
-      <div className="relative hidden lg:flex flex-col justify-between w-[480px] shrink-0 px-12 py-12 overflow-hidden border-r border-white/10" style={{ background: "linear-gradient(145deg, #0a0a0f 0%, #000 100%)" }}>
+      <div className="relative hidden lg:flex flex-col justify-between w-[480px] shrink-0 px-12 py-12 overflow-hidden border-r border-white/5" style={{ background: "linear-gradient(145deg, #060913 0%, #02040a 100%)" }}>
         <GridBackground />
 
         {/* Top */}
@@ -128,10 +129,10 @@ export function AuthScreen() {
           <SettlyWordmark />
           <div className="mt-16">
             <p className="text-[10px] uppercase tracking-[0.22em] font-semibold mb-4 text-indigo-400">
-              Fintech Agentic AI
+              Settly Operating System
             </p>
             <h1 className="text-4xl font-semibold leading-tight tracking-tight text-white mb-6">
-              Your intelligent<br />settlement<br />command center.
+              The intelligent<br />settlement<br />command center.
             </h1>
             <p className="text-sm leading-relaxed text-white/50">
               Settly's AI agent traces failed transactions, surfaces exceptions, and analyses your financial data - all in real time.
@@ -164,7 +165,7 @@ export function AuthScreen() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: 0.5 + (i * 0.1) }}
             >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-base" style={{ background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)", color: "#818cf8", boxShadow: "0 4px 12px rgba(99,102,241,0.1)" }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.15)", boxShadow: "0 4px 12px rgba(99,102,241,0.05)" }}>
                 {f.icon}
               </div>
               <div className="pt-0.5">
@@ -188,14 +189,14 @@ export function AuthScreen() {
 
       {/* ── Right panel ────────────────────────────────────── */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 overflow-y-auto relative">
-        <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_bottom_right,rgba(40,40,60,0.4),transparent_50%)]" />
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(30,35,60,0.4),transparent_60%)]" />
         
         <motion.div 
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
           className="w-full max-w-[420px] relative z-10 p-8 rounded-2xl"
-          style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", backdropFilter: "blur(20px)", boxShadow: "0 24px 48px rgba(0,0,0,0.4)" }}
+          style={{ background: "rgba(10,12,20,0.6)", border: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(20px)", boxShadow: "0 24px 48px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05)" }}
         >
 
           {/* Mobile logo */}
@@ -289,18 +290,20 @@ export function AuthScreen() {
                       placeholder={mode === "signup" ? "Min. 8 characters" : "••••••••"}
                       className="w-full h-11 px-3.5 pr-10 rounded-xl text-sm focus:outline-none transition-all placeholder:text-white/20"
                       style={{
-                        background: "rgba(255,255,255,0.03)",
-                        border: "1px solid rgba(255,255,255,0.1)",
+                        background: "rgba(0,0,0,0.2)",
+                        border: "1px solid rgba(255,255,255,0.08)",
                         color: "#fff",
-                        boxShadow: "inset 0 2px 4px rgba(0,0,0,0.2)"
+                        boxShadow: "inset 0 1px 3px rgba(0,0,0,0.3)"
                       }}
                       onFocus={e => {
                         e.currentTarget.style.borderColor = "rgba(99,102,241,0.5)";
-                        e.currentTarget.style.background = "rgba(99,102,241,0.05)";
+                        e.currentTarget.style.background = "rgba(99,102,241,0.03)";
+                        e.currentTarget.style.boxShadow = "0 0 0 4px rgba(99,102,241,0.1), inset 0 1px 3px rgba(0,0,0,0.3)";
                       }}
                       onBlur={e => {
-                        e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-                        e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                        e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                        e.currentTarget.style.background = "rgba(0,0,0,0.2)";
+                        e.currentTarget.style.boxShadow = "inset 0 1px 3px rgba(0,0,0,0.3)";
                       }}
                     />
                     <button
@@ -393,18 +396,20 @@ function InputField({ label, type, value, onChange, placeholder, required }: {
         placeholder={placeholder}
         className="w-full h-11 px-3.5 rounded-xl text-sm focus:outline-none transition-all placeholder:text-white/20"
         style={{
-          background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.1)",
+          background: "rgba(0,0,0,0.2)",
+          border: "1px solid rgba(255,255,255,0.08)",
           color: "#fff",
-          boxShadow: "inset 0 2px 4px rgba(0,0,0,0.2)"
+          boxShadow: "inset 0 1px 3px rgba(0,0,0,0.3)"
         }}
         onFocus={e => {
           e.currentTarget.style.borderColor = "rgba(99,102,241,0.5)";
-          e.currentTarget.style.background = "rgba(99,102,241,0.05)";
+          e.currentTarget.style.background = "rgba(99,102,241,0.03)";
+          e.currentTarget.style.boxShadow = "0 0 0 4px rgba(99,102,241,0.1), inset 0 1px 3px rgba(0,0,0,0.3)";
         }}
         onBlur={e => {
-          e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-          e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+          e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+          e.currentTarget.style.background = "rgba(0,0,0,0.2)";
+          e.currentTarget.style.boxShadow = "inset 0 1px 3px rgba(0,0,0,0.3)";
         }}
       />
     </div>
