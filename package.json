@@ -39,6 +39,11 @@
     "typescript": "^5"
   },
   "allowScripts": {
-    "better-sqlite3@13.0.3": true
+    "better-sqlite3@13.0.3": true,
+    "@google/genai@1.52.0": true,
+    "esbuild@0.28.2": true,
+    "@firebase/util@1.15.3": true,
+    "protobufjs@7.6.6": true,
+    "unrs-resolver@1.12.2": true
   }
 }
