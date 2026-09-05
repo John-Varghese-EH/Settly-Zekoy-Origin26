@@ -1,7 +1,11 @@
 import { TransactionRecord } from '@/types/transaction';
 
+export type IssueCategory = 'IN_CYCLE' | 'FEE_DEDUCTION' | 'DATA_LAG' | 'UNEXPLAINED' | 'CLEAN';
+
 export interface ReconciliationResult {
   hasDiscrepancy: boolean;
+  category: IssueCategory;
+  confidenceScore: number;
   missingFrom: ('gateway' | 'bank' | 'ledger')[];
   amountMismatches: Array<{source1: string, source2: string, amount1: number, amount2: number, difference: number}>;
   timingAnomalies: Array<{description: string, timestamp1: string, timestamp2: string}>;
@@ -11,6 +15,8 @@ export interface ReconciliationResult {
 export function reconcileTransaction(record: TransactionRecord): ReconciliationResult {
   const result: ReconciliationResult = {
     hasDiscrepancy: false,
+    category: 'CLEAN',
+    confidenceScore: 1.0,
     missingFrom: [],
     amountMismatches: [],
     timingAnomalies: [],
@@ -31,7 +37,7 @@ export function reconcileTransaction(record: TransactionRecord): ReconciliationR
   checkAmount('gateway', 'bank', record.gateway?.amount, record.bank?.amount);
   checkAmount('gateway', 'ledger', record.gateway?.amount, record.ledger?.amount);
 
-  // Race condition between gateway capture and bank webhook means we can't assume strict temporal ordering 100% of time, but large gaps or ledger preceding gateway is an anomaly.
+  // Timing anomaly checks
   if (record.gateway && record.ledger) {
     if (new Date(record.ledger.ledger_timestamp) < new Date(record.gateway.gateway_timestamp)) {
       result.timingAnomalies.push({
@@ -47,6 +53,42 @@ export function reconcileTransaction(record: TransactionRecord): ReconciliationR
     result.statusConflicts.push({ source: 'ledger', status: 'posted', expectedStatus: 'reversed/pending' });
   }
 
+  // --- CLASSIFICATION LOGIC (per spec) ---
+
+  // Check if still within T+1 settlement cycle
+  if (record.gateway && !record.bank && !record.ledger) {
+    const gatewayTime = new Date(record.gateway.gateway_timestamp);
+    const now = new Date();
+    const hoursSinceGateway = (now.getTime() - gatewayTime.getTime()) / (1000 * 60 * 60);
+    if (hoursSinceGateway <= 24) {
+      result.category = 'IN_CYCLE';
+      result.confidenceScore = 0.95;
+      result.hasDiscrepancy = false;
+      return result;
+    }
+  }
+
+  // Check for fee/tax deduction (amount mismatch within 18% GST range)
+  if (result.amountMismatches.length > 0) {
+    const mismatch = result.amountMismatches[0];
+    const percentDiff = (mismatch.difference / mismatch.amount1) * 100;
+    if (percentDiff <= 20 && percentDiff >= 0.5) {
+      result.category = 'FEE_DEDUCTION';
+      result.confidenceScore = 0.85;
+      result.hasDiscrepancy = true;
+      return result;
+    }
+  }
+
+  // DATA_LAG: bank settled but ledger hasn't updated yet
+  if (record.gateway && record.bank && !record.ledger) {
+    result.category = 'DATA_LAG';
+    result.confidenceScore = 0.8;
+    result.hasDiscrepancy = true;
+    return result;
+  }
+
+  // UNEXPLAINED: data doesn't reconcile at all
   if (
     result.missingFrom.length > 0 ||
     result.amountMismatches.length > 0 ||
@@ -54,7 +96,12 @@ export function reconcileTransaction(record: TransactionRecord): ReconciliationR
     result.statusConflicts.length > 0
   ) {
     result.hasDiscrepancy = true;
+    result.category = 'UNEXPLAINED';
+    result.confidenceScore = 0.3;
+    return result;
   }
 
+  // All clean
+  result.confidenceScore = 1.0;
   return result;
 }

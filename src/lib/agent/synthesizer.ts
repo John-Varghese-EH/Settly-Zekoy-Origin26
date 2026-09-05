@@ -5,24 +5,43 @@ import { SYNTHESIZER_SYSTEM_PROMPT } from './prompts';
 import { ReconciliationResult } from '@/lib/utils/reconciliation';
 
 function heuristicSynthesize(toolResult: ToolResult, reconciliation: ReconciliationResult | null): string {
-  if (toolResult.tool_name === 'lookup' && toolResult.data) {
-    if (reconciliation?.hasDiscrepancy) {
-      return "I found the transaction, but there is a critical discrepancy in the records. I have escalated this issue to the Admin Console for manual review. See the trace for details.";
+  if (toolResult.tool_name === 'auto_resolve_transaction') {
+    if (toolResult.success) {
+      return `**Autonomous Resolution Complete.** The transaction has been automatically resolved. ${(toolResult.metadata as any)?.resolution_message || ''} A notification has been sent to the customer.`;
     }
-    return "I found the transaction and it looks properly reconciled.";
+    return `Auto-resolution was not possible. ${(toolResult.metadata as any)?.resolution_message || 'The case has been escalated to the support team.'}`;
+  }
+  
+  if (toolResult.tool_name === 'lookup' && toolResult.data) {
+    if ((toolResult.metadata as any)?.escalated) {
+      return `**Escalated to Support Team.** ${(toolResult.metadata as any)?.escalation_reason || 'This case requires manual review.'} The case has been added to the Exception List.`;
+    }
+    if (reconciliation?.category === 'IN_CYCLE') {
+      return `This transaction is still within the standard T+1 settlement cycle. No action required yet. Confidence: ${(reconciliation.confidenceScore * 100).toFixed(0)}%.`;
+    }
+    if (reconciliation?.category === 'FEE_DEDUCTION') {
+      return `The amount difference is likely due to tax/fee deductions (GST, platform fees). This has been flagged for review. Confidence: ${(reconciliation.confidenceScore * 100).toFixed(0)}%.`;
+    }
+    if (reconciliation?.category === 'DATA_LAG') {
+      return `The bank has processed the settlement but the ledger hasn't updated yet (DATA_LAG). A retry has been triggered. Confidence: ${(reconciliation.confidenceScore * 100).toFixed(0)}%.`;
+    }
+    if (reconciliation?.hasDiscrepancy) {
+      return `A critical discrepancy was found in the records. The issue has been escalated to the Admin Console for manual review.`;
+    }
+    return `Transaction is properly reconciled across all systems. Confidence: 100%.`;
   }
   if (toolResult.tool_name === 'list_exceptions') {
     if (Array.isArray(toolResult.data) && toolResult.data.length > 0) {
-      return `I found ${toolResult.data.length} transactions with exceptions in the current records.`;
+      return `Found ${toolResult.data.length} transactions with exceptions in the current records.`;
     }
-    return "I found no exceptions in the current records.";
+    return `No exceptions found in the current records.`;
   }
   
   if (toolResult.errors.length > 0) {
-    return "I encountered an error trying to process your request.";
+    return `I encountered an error trying to process your request.`;
   }
   
-  return "I have processed your request based on the available data.";
+  return `I have processed your request based on the available data.`;
 }
 
 export async function synthesizeResponse(
@@ -92,8 +111,10 @@ Reconciliation: ${JSON.stringify(reconciliation, null, 2)}
     insightCards.push({
       id: 'disc-' + Date.now(),
       type: 'discrepancy',
-      title: 'Reconciliation Discrepancy Found',
+      title: `${reconciliation.category} - Discrepancy Detected`,
       data: reconciliation,
+      mismatches: reconciliation.amountMismatches.length > 0 ? { amounts: reconciliation.amountMismatches } : null,
+      missingSources: reconciliation.missingFrom,
       priority: 'high'
     });
   }
