@@ -10,7 +10,7 @@ function friendlyError(msg: string): string {
   if (msg.includes("user-not-found") || msg.includes("wrong-password") || msg.includes("invalid-credential"))
     return "Incorrect email or password.";
   if (msg.includes("email-already-in-use")) return "An account with this email already exists.";
-  if (msg.includes("weak-password")) return "Password must be at least 8 characters.";
+  if (msg.includes("weak-password")) return "Password must be at least 7 characters.";
   if (msg.includes("popup-closed") || msg.includes("cancelled")) return "Sign-in was cancelled.";
   if (msg.includes("network")) return "Network error - check your connection.";
   return "Authentication failed. Please try again.";
@@ -181,15 +181,23 @@ export function AuthScreen() {
                     {mode === "signin" ? "Sign in to access your dashboard." : "Set up your agent access."}
                   </p>
 
-                  <div className="mb-8 p-4 rounded-xl border" style={{ background: "rgba(255,107,107,0.08)", border: "1px solid rgba(255,107,107,0.25)" }}>
-                    <h3 className="text-sm font-semibold mb-2" style={{ color: "#ff8787" }}>🧪 Evaluator Demo Login</h3>
-                    <div className="text-xs font-mono mb-3 space-y-1" style={{ color: "rgba(255,255,255,0.8)" }}>
-                      <div>Email: <span className="text-white bg-black/30 px-1.5 py-0.5 rounded">jury@admin.com</span></div>
-                      <div>Pass: &nbsp;<span className="text-white bg-black/30 px-1.5 py-0.5 rounded">Jury123</span></div>
+                  <div className="mb-6 px-4 py-2.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4" style={{ background: "rgba(255,107,107,0.08)", border: "1px solid rgba(255,107,107,0.25)" }}>
+                    <div>
+                      <h3 className="text-xs font-semibold mb-0.5" style={{ color: "#ff8787" }}>🧪 Demo Login</h3>
+                      <p className="text-[10px] leading-tight max-w-[200px]" style={{ color: "rgba(255,255,255,0.5)" }}>
+                        Google/Email auth works fully. These are for fast evaluation.
+                      </p>
                     </div>
-                    <p className="text-[11px] leading-snug" style={{ color: "rgba(255,255,255,0.6)" }}>
-                      * Note: Standard Google & Email authentication is fully functional. These credentials are provided simply for faster evaluation.
-                    </p>
+                    <div className="text-[11px] font-mono whitespace-nowrap shrink-0" style={{ color: "rgba(255,255,255,0.8)" }}>
+                      <div className="flex justify-between gap-3 mb-1">
+                        <span className="text-white/40 uppercase text-[9px] tracking-wider mt-0.5">Email</span>
+                        <span className="text-white bg-black/40 px-1.5 py-0.5 rounded border border-white/5">jury@admin.com</span>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <span className="text-white/40 uppercase text-[9px] tracking-wider mt-0.5">Pass</span>
+                        <span className="text-white bg-black/40 px-1.5 py-0.5 rounded border border-white/5">Jury123</span>
+                      </div>
+                    </div>
                   </div>
 
                   <motion.button
@@ -240,8 +248,8 @@ export function AuthScreen() {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
-                          minLength={8}
-                          placeholder={mode === "signup" ? "Min. 8 characters" : "••••••••"}
+                          minLength={7}
+                          placeholder={mode === "signup" ? "Min. 7 characters" : "•••••••"}
                           className="w-full h-12 px-4 pr-10 rounded-2xl text-sm focus:outline-none transition-all placeholder:text-white/30 bg-black/20 border border-white/10 text-white shadow-[inset_0_1px_3px_rgba(0,0,0,0.3)] focus:border-white/30 focus:bg-white/5"
                         />
                         <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40">
