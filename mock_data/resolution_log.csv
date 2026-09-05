@@ -1,0 +1,2 @@
+timestamp,transaction_id,action,category,confidence_score,details,agent_id
+2026-09-05T00:43:01.126Z,TXN-2001,auto_closed,CLEAN,1,"Transaction fully reconciled - auto-closed",settly-agent-v1
