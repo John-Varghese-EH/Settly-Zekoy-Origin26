@@ -8,6 +8,7 @@ import remarkGfm from 'remark-gfm';
 export interface StructuredResponse {
   verdict: string;
   exceptionCard?: InsightCard;
+  discrepancyCard?: InsightCard;
   metricsCards?: InsightCard[];
   hasTrace?: boolean;
   txnId?: string;
@@ -64,6 +65,43 @@ export function StructuredMessage({ response }: { response: StructuredResponse }
                 <p className="text-[11px] mt-1.5 leading-relaxed" style={{ color: "rgba(255,255,255,0.8)" }}>
                   {response.exceptionCard.data}
                 </p>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {response.discrepancyCard && (
+        <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }} className="pl-8">
+          <div className="flex items-start gap-3 px-4 py-3 rounded-xl" style={{ background: "rgba(255,107,107,0.08)", border: "1px solid rgba(255,107,107,0.25)" }}>
+            <span className="text-base mt-0.5 shrink-0">🔍</span>
+            <div className="w-full">
+              <p className="text-xs font-semibold mb-1.5" style={{ color: "#ff8787" }}>{response.discrepancyCard.title}</p>
+              {response.discrepancyCard.mismatches?.amounts?.map((m, i) => (
+                <div key={i} className="mb-2 p-2 rounded bg-black/20 text-[11px] font-mono border border-white/5 flex flex-col gap-1">
+                  <div className="flex justify-between">
+                    <span className="text-white/60 capitalize">{m.source1}:</span>
+                    <span className="text-white">{m.amount1}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white/60 capitalize">{m.source2}:</span>
+                    <span className="text-white">{m.amount2}</span>
+                  </div>
+                  <div className="flex justify-between mt-1 pt-1 border-t border-white/10">
+                    <span className="text-[#ff8787]">Difference:</span>
+                    <span className="text-[#ff8787] font-semibold">{m.difference}</span>
+                  </div>
+                </div>
+              ))}
+              {response.discrepancyCard.missingSources && response.discrepancyCard.missingSources.length > 0 && (
+                <div className="text-[11px] mt-2 p-2 rounded bg-black/20 border border-white/5">
+                  <span className="text-white/60 block mb-1">Missing from:</span>
+                  <div className="flex gap-1.5">
+                    {response.discrepancyCard.missingSources.map(s => (
+                      <span key={s} className="px-1.5 py-0.5 rounded-sm bg-white/10 text-white/90 capitalize font-medium">{s}</span>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           </div>

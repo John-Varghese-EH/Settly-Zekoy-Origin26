@@ -19,10 +19,10 @@ interface ChatPanelProps {
 }
 
 const AGENT_SUGGESTIONS = [
-  "Trace TXN-2013 - check amount mismatch",
-  "List all recent exceptions",
-  "Why is TXN-2004 showing a timing anomaly?",
-  "Analyse transactions between 2026-09-01 and today",
+  "Trace TXN-2013",
+  "Show all exceptions",
+  "What happened to TXN-2021?",
+  "Resolve TXN-2021",
 ];
 
 export function ChatPanel({ 
@@ -64,6 +64,7 @@ export function ChatPanel({
     return {
       verdict: msg.content,
       exceptionCard: msg.insightCards?.find(c => c.type === 'exception'),
+      discrepancyCard: msg.insightCards?.find(c => c.type === 'discrepancy'),
       metricsCards: msg.insightCards?.filter(c => c.type === 'summary'),
       hasTrace: !!msg.insightCards?.find(c => c.type === 'timeline'),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

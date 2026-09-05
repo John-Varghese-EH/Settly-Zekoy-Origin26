@@ -13,7 +13,7 @@ export function useChat() {
     {
       id: 'welcome-message',
       role: 'agent',
-      content: 'Welcome to **Settly**. I am your Enterprise AI Settlement Architect. I can reconcile transactions, analyze gateway logs, and trace ledger entries in real-time.\n\nTry asking:\n• "What is the status of TXN-001?"\n• "Show me all current exceptions"\n• "Compare TXN-005 across all systems"',
+      content: 'Welcome to **Settly**. I am your Enterprise AI Settlement Architect.\n\nI can reconcile transactions, detect discrepancies, and auto-resolve exceptions across Gateway, Bank, and Ledger systems.\n\nTry asking:\n- "Trace TXN-2013" (fee deduction case)\n- "Show me all exceptions"\n- "What happened to TXN-2021?" (data lag case)\n- "Resolve TXN-2021"',
       timestamp: new Date().toISOString()
     }
   ]);
@@ -33,18 +33,20 @@ export function useChat() {
     setIsLoading(true);
     setPipelineStage({ stage: 'scrubbing', label: 'Scanning for PII...' });
 
+    // Store all timeout IDs so we can clear them properly
+    const timerIds: NodeJS.Timeout[] = [];
+
     try {
       // Simulate stage progression for UX - the actual pipeline runs server-side
-      // but we show users what's happening conceptually
-      const stageTimer = setTimeout(() => {
+      timerIds.push(setTimeout(() => {
         setPipelineStage({ stage: 'classifying', label: 'Classifying intent...' });
-        setTimeout(() => {
+        timerIds.push(setTimeout(() => {
           setPipelineStage({ stage: 'executing', label: 'Querying settlement records...' });
-          setTimeout(() => {
+          timerIds.push(setTimeout(() => {
             setPipelineStage({ stage: 'synthesizing', label: 'Analyzing results...' });
-          }, 800);
-        }, 600);
-      }, 300);
+          }, 800));
+        }, 600));
+      }, 300));
 
       const res = await fetch('/api/agent', {
         method: 'POST',
@@ -52,7 +54,7 @@ export function useChat() {
         body: JSON.stringify({ message: content })
       });
 
-      clearTimeout(stageTimer);
+      timerIds.forEach(clearTimeout);
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ error: 'Agent failed to respond' }));
