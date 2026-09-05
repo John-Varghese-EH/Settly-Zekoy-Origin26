@@ -96,8 +96,8 @@ export function AuthScreen() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#02040a]/70 via-[#02040a]/20 to-transparent z-10 w-[80%] pointer-events-none" />
           
           {/* Ambient Glows */}
-          <div className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 bg-indigo-500/20 rounded-full blur-[120px] z-10 pointer-events-none mix-blend-screen" />
-          <div className="absolute bottom-1/4 right-0 w-1/3 h-1/3 bg-blue-500/10 rounded-full blur-[100px] z-10 pointer-events-none mix-blend-screen" />
+          <motion.div animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.1, 1] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 bg-indigo-500/20 rounded-full blur-[120px] z-10 pointer-events-none mix-blend-screen" />
+          <motion.div animate={{ opacity: [0.2, 0.5, 0.2], scale: [1, 1.2, 1] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="absolute bottom-1/4 right-0 w-1/3 h-1/3 bg-blue-500/10 rounded-full blur-[100px] z-10 pointer-events-none mix-blend-screen" />
           
           <video
             autoPlay loop muted playsInline
@@ -110,27 +110,30 @@ export function AuthScreen() {
           
           {/* Left: Cinematic Text */}
           <div className="flex-1 flex flex-col items-start text-left max-w-2xl">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <motion.div initial="hidden" animate="visible" variants={{
+              hidden: { opacity: 0 },
+              visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+            }}>
 
-              <h1 className="text-5xl sm:text-6xl md:text-7xl leading-[0.95] tracking-[-1.5px] font-normal text-white" style={{ fontFamily: "'Instrument Serif', serif" }}>
+              <motion.h1 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }} className="text-5xl sm:text-6xl md:text-7xl leading-[0.95] tracking-[-1.5px] font-normal text-white" style={{ fontFamily: "'Instrument Serif', serif" }}>
                 The Autonomous Agent That Explains Every Settlement <br/><em className="not-italic text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-blue-200 drop-shadow-sm">- Instantly.</em>
-              </h1>
-              <p className="text-[#a3a3a3] text-base sm:text-lg mt-8 leading-relaxed max-w-xl">
+              </motion.h1>
+              <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }} className="text-[#a3a3a3] text-base sm:text-lg mt-8 leading-relaxed max-w-xl">
                 Settly automates payment reconciliation by tracing transaction IDs across Gateway, Bank, and Ledger logs - resolving what it can on its own, and honestly escalating what it can&apos;t.
-              </p>
+              </motion.p>
               
-              <div className="flex flex-wrap items-center gap-4 mt-10">
-                <button onClick={focusLogin} className="liquid-glass rounded-full px-8 py-4 text-sm font-medium text-white hover:scale-[1.03] transition-transform cursor-pointer">
+              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }} className="flex flex-wrap items-center gap-4 mt-10">
+                <button onClick={focusLogin} className="liquid-glass rounded-full px-8 py-4 text-sm font-medium text-white hover:scale-[1.03] active:scale-[0.98] transition-transform cursor-pointer">
                   Try the Agent
                 </button>
-                <button className="rounded-full px-8 py-4 text-sm font-medium text-white border border-white/10 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer backdrop-blur-md">
+                <button className="rounded-full px-8 py-4 text-sm font-medium text-white border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer backdrop-blur-md hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] active:scale-[0.98]">
                   Simulate a Dispute
                 </button>
-              </div>
-              <div className="mt-8 flex items-center gap-2">
+              </motion.div>
+              <motion.div variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 1, delay: 0.6 } } }} className="mt-8 flex items-center gap-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 <p className="text-xs text-white/60">No hallucinations. Every answer is evidence-backed.</p>
-              </div>
+              </motion.div>
             </motion.div>
           </div>
 
@@ -139,8 +142,9 @@ export function AuthScreen() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3, type: "spring", damping: 25 }}
-              className="w-full relative z-10 p-8 rounded-[2rem] border border-white/5 shadow-2xl backdrop-blur-xl bg-white/[0.02]"
+              transition={{ duration: 0.8, delay: 0.2, type: "spring", damping: 25 }}
+              whileHover={{ y: -5, boxShadow: "0 30px 60px -12px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.2), 0 0 60px 0 rgba(99, 102, 241, 0.15)" }}
+              className="w-full relative z-10 p-8 rounded-[2rem] border border-white/5 shadow-2xl backdrop-blur-xl bg-white/[0.02] transition-shadow duration-500"
               style={{
                 background: "rgba(255, 255, 255, 0.03)",
                 border: "1px solid rgba(255, 255, 255, 0.1)",

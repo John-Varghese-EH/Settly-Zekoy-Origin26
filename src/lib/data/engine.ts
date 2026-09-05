@@ -1,33 +1,66 @@
-import { getDb } from '@/lib/db';
+import * as fs from 'fs';
+import * as path from 'path';
 import { GatewayLog, BankSettlement, LedgerEntry, TransactionRecord } from '@/types/transaction';
 
+// Global in-memory data store for serverless environments
+let gatewayLogs: GatewayLog[] = [];
+let bankSettlements: BankSettlement[] = [];
+let ledgerEntries: LedgerEntry[] = [];
+let isInitialized = false;
+
+function parseCSV(filePath: string) {
+  if (!fs.existsSync(filePath)) return [];
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const lines = content.split('\n').filter(line => line.trim() !== '');
+  if (lines.length === 0) return [];
+  const headers = lines[0].split(',').map(h => h.trim());
+  
+  return lines.slice(1).map((line, idx) => {
+    const values = line.split(',');
+    const obj: Record<string, any> = { id: `csv_${idx}_${Math.random().toString(36).substring(2, 9)}` };
+    headers.forEach((header, index) => {
+      let val: any = values[index]?.trim();
+      if (val === 'false') val = false;
+      else if (val === 'true') val = true;
+      else if (!isNaN(Number(val)) && val !== '') val = Number(val);
+      obj[header] = val;
+    });
+    return obj;
+  });
+}
+
+function initData() {
+  if (isInitialized) return;
+  const dataDir = path.join(process.cwd(), 'mock_data');
+  gatewayLogs = parseCSV(path.join(dataDir, 'gateway_logs.csv')) as GatewayLog[];
+  bankSettlements = parseCSV(path.join(dataDir, 'bank_settlements.csv')) as BankSettlement[];
+  ledgerEntries = parseCSV(path.join(dataDir, 'ledger_entries.csv')) as LedgerEntry[];
+  
+  // Ensure booleans are proper booleans and metadata is parsed
+  gatewayLogs = gatewayLogs.map(g => ({ ...g, metadata: typeof g.metadata === 'string' ? JSON.parse(g.metadata || '{}') : {} }));
+  isInitialized = true;
+}
+
 export async function getGatewayLog(transactionId: string): Promise<GatewayLog | null> {
-  const db = getDb();
-  const row = db.prepare('SELECT * FROM gateway_logs WHERE transaction_id = ?').get(transactionId) as { metadata?: string; [k: string]: unknown } | undefined;
-  if (!row) return null;
-  return {
-    ...row,
-    metadata: row.metadata ? JSON.parse(row.metadata) : {}
-  } as GatewayLog;
+  initData();
+  const log = gatewayLogs.find(g => g.transaction_id === transactionId);
+  return log || null;
 }
 
 export async function getBankSettlement(transactionId: string): Promise<BankSettlement | null> {
-  const db = getDb();
-  const row = db.prepare('SELECT * FROM bank_settlements WHERE transaction_id = ?').get(transactionId) as BankSettlement | undefined;
-  return (row as BankSettlement) || null;
+  initData();
+  const settlement = bankSettlements.find(b => b.transaction_id === transactionId);
+  return settlement || null;
 }
 
 export async function getLedgerEntry(transactionId: string): Promise<LedgerEntry | null> {
-  const db = getDb();
-  const row = db.prepare('SELECT * FROM ledger_entries WHERE transaction_id = ?').get(transactionId) as { reconciliation_flag?: number; [k: string]: unknown } | undefined;
-  if (!row) return null;
-  return {
-    ...row,
-    reconciliation_flag: row.reconciliation_flag === 1
-  } as LedgerEntry;
+  initData();
+  const entry = ledgerEntries.find(l => l.transaction_id === transactionId);
+  return entry || null;
 }
 
 export async function getTransactionRecord(transactionId: string): Promise<TransactionRecord> {
+  initData();
   const [gateway, bank, ledger] = await Promise.all([
     getGatewayLog(transactionId),
     getBankSettlement(transactionId),
@@ -42,54 +75,42 @@ export async function getTransactionRecord(transactionId: string): Promise<Trans
 }
 
 export async function listExceptions(): Promise<TransactionRecord[]> {
-  const db = getDb();
-  
+  initData();
   // Find transactions that exist in gateway but are missing in bank or ledger
-  const rows = db.prepare(`
-    SELECT g.transaction_id 
-    FROM gateway_logs g
-    LEFT JOIN bank_settlements b ON g.transaction_id = b.transaction_id
-    LEFT JOIN ledger_entries l ON g.transaction_id = l.transaction_id
-    WHERE b.transaction_id IS NULL OR l.transaction_id IS NULL
-  `).all() as { transaction_id: string }[];
+  const exceptionIds = gatewayLogs
+    .filter(g => !bankSettlements.some(b => b.transaction_id === g.transaction_id) || 
+                 !ledgerEntries.some(l => l.transaction_id === g.transaction_id))
+    .map(g => g.transaction_id);
 
   const exceptions: TransactionRecord[] = [];
-  for (const row of rows) {
-    exceptions.push(await getTransactionRecord(row.transaction_id));
+  for (const id of exceptionIds) {
+    exceptions.push(await getTransactionRecord(id));
   }
   
   return exceptions;
 }
 
 export async function getTransactionsByDateRange(from: string, to: string): Promise<TransactionRecord[]> {
-  const db = getDb();
-  const rows = db.prepare(`
-    SELECT transaction_id 
-    FROM gateway_logs 
-    WHERE gateway_timestamp >= ? AND gateway_timestamp <= ?
-  `).all(from, to) as { transaction_id: string }[];
-
+  initData();
   const records: TransactionRecord[] = [];
-  for (const row of rows) {
-    records.push(await getTransactionRecord(row.transaction_id));
+  const matches = gatewayLogs.filter(g => g.gateway_timestamp >= from && g.gateway_timestamp <= to);
+  for (const match of matches) {
+    records.push(await getTransactionRecord(match.transaction_id));
   }
-  
   return records;
 }
 
 export async function getAllTransactions(): Promise<TransactionRecord[]> {
-  const db = getDb();
-  const rows = db.prepare('SELECT transaction_id FROM gateway_logs').all() as { transaction_id: string }[];
-  
+  initData();
   const records: TransactionRecord[] = [];
-  for (const row of rows) {
-    records.push(await getTransactionRecord(row.transaction_id));
+  for (const g of gatewayLogs) {
+    records.push(await getTransactionRecord(g.transaction_id));
   }
   return records;
 }
 
 export async function autoResolveTransaction(transactionId: string): Promise<{ resolved: boolean; message: string }> {
-  const db = getDb();
+  initData();
   const record = await getTransactionRecord(transactionId);
   
   if (!record.gateway) {
@@ -99,44 +120,34 @@ export async function autoResolveTransaction(transactionId: string): Promise<{ r
   let resolvedBank = false;
   let resolvedLedger = false;
   
-  db.transaction(() => {
-    // If it's missing in bank, insert a pending settlement
-    if (!record.bank) {
-      const insertBank = db.prepare(`
-        INSERT INTO bank_settlements (id, transaction_id, settlement_batch_id, amount, status, bank_timestamp, settlement_date)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `);
-      insertBank.run(
-        `bs_auto_${Math.random().toString(36).substr(2, 9)}`,
-        transactionId,
-        'BATCH-AUTO-RESOLVE',
-        record.gateway!.amount,
-        'pending',
-        new Date().toISOString(),
-        new Date().toISOString().split('T')[0]
-      );
-      resolvedBank = true;
-    }
-    
-    // If it's missing in ledger, insert a posted entry
-    if (!record.ledger) {
-      const insertLedger = db.prepare(`
-        INSERT INTO ledger_entries (id, transaction_id, debit_account, credit_account, amount, status, ledger_timestamp, reconciliation_flag)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `);
-      insertLedger.run(
-        `le_auto_${Math.random().toString(36).substr(2, 9)}`,
-        transactionId,
-        'ACCT-REC-AUTO',
-        'ACCT-REV-AUTO',
-        record.gateway!.amount,
-        'posted',
-        new Date().toISOString(),
-        1 // 1 for true
-      );
-      resolvedLedger = true;
-    }
-  })();
+  // If it's missing in bank, insert a pending settlement
+  if (!record.bank) {
+    bankSettlements.push({
+      id: `bs_auto_${Math.random().toString(36).substr(2, 9)}`,
+      transaction_id: transactionId,
+      settlement_batch_id: 'BATCH-AUTO-RESOLVE',
+      amount: record.gateway.amount,
+      status: 'pending',
+      bank_timestamp: new Date().toISOString(),
+      settlement_date: new Date().toISOString().split('T')[0]
+    });
+    resolvedBank = true;
+  }
+  
+  // If it's missing in ledger, insert a posted entry
+  if (!record.ledger) {
+    ledgerEntries.push({
+      id: `le_auto_${Math.random().toString(36).substr(2, 9)}`,
+      transaction_id: transactionId,
+      debit_account: 'ACCT-REC-AUTO',
+      credit_account: 'ACCT-REV-AUTO',
+      amount: record.gateway.amount,
+      status: 'posted',
+      ledger_timestamp: new Date().toISOString(),
+      reconciliation_flag: true
+    });
+    resolvedLedger = true;
+  }
   
   if (resolvedBank && resolvedLedger) {
     return { resolved: true, message: 'Automatically resolved missing Bank Settlement and Ledger Entry records.' };
