@@ -77,7 +77,7 @@ export function StructuredMessage({ response }: { response: StructuredResponse }
             <span className="text-base mt-0.5 shrink-0">🔍</span>
             <div className="w-full">
               <p className="text-xs font-semibold mb-1.5" style={{ color: "#ff8787" }}>{response.discrepancyCard.title}</p>
-              {response.discrepancyCard.mismatches?.amounts?.map((m, i) => (
+              {Array.isArray(response.discrepancyCard.mismatches?.amounts) && (response.discrepancyCard.mismatches.amounts as any[]).map((m, i) => (
                 <div key={i} className="mb-2 p-2 rounded bg-black/20 text-[11px] font-mono border border-white/5 flex flex-col gap-1">
                   <div className="flex justify-between">
                     <span className="text-white/60 capitalize">{m.source1}:</span>
