@@ -181,6 +181,17 @@ export function AuthScreen() {
                     {mode === "signin" ? "Sign in to access your dashboard." : "Set up your agent access."}
                   </p>
 
+                  <div className="mb-8 p-4 rounded-xl border" style={{ background: "rgba(255,107,107,0.08)", border: "1px solid rgba(255,107,107,0.25)" }}>
+                    <h3 className="text-sm font-semibold mb-2" style={{ color: "#ff8787" }}>🧪 Evaluator Demo Login</h3>
+                    <div className="text-xs font-mono mb-3 space-y-1" style={{ color: "rgba(255,255,255,0.8)" }}>
+                      <div>Email: <span className="text-white bg-black/30 px-1.5 py-0.5 rounded">jury@admin.com</span></div>
+                      <div>Pass: &nbsp;<span className="text-white bg-black/30 px-1.5 py-0.5 rounded">Jury123</span></div>
+                    </div>
+                    <p className="text-[11px] leading-snug" style={{ color: "rgba(255,255,255,0.6)" }}>
+                      * Note: Standard Google & Email authentication is fully functional. These credentials are provided simply for faster evaluation.
+                    </p>
+                  </div>
+
                   <motion.button
                     onClick={handleGoogle}
                     disabled={loading}
