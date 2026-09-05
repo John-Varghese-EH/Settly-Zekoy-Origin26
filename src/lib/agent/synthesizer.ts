@@ -5,48 +5,78 @@ import { SYNTHESIZER_SYSTEM_PROMPT } from './prompts';
 import { ReconciliationResult } from '@/lib/utils/reconciliation';
 
 function heuristicSynthesize(toolResult: ToolResult, reconciliation: ReconciliationResult | null): string {
-  // Handle general questions / greetings
   if (toolResult.tool_name === 'general_question') {
     return `Hello! I'm **Settly**, your Enterprise AI Settlement Architect.\n\nI can help you with:\n- **Trace a transaction** - e.g. "What happened to TXN-2013?"\n- **List exceptions** - e.g. "Show me all exceptions"\n- **Reconcile records** - e.g. "Check status of TXN-2021"\n- **Auto-resolve issues** - e.g. "Resolve TXN-2021"\n\nHow can I assist you today?`;
   }
 
   if (toolResult.tool_name === 'auto_resolve_transaction') {
     if (toolResult.success) {
-      return `**Autonomous Resolution Complete.** The transaction has been automatically resolved. ${(toolResult.metadata as Record<string, unknown>)?.resolution_message || ''} A notification has been sent to the customer.`;
+      return `## Autonomous Resolution Complete\n\n✅ The transaction has been **automatically resolved**.\n\n${(toolResult.metadata as Record<string, unknown>)?.resolution_message || ''}\n\n*A notification has been sent to the customer.*`;
     }
-    return `Auto-resolution was not possible. ${(toolResult.metadata as Record<string, unknown>)?.resolution_message || 'The case has been escalated to the support team.'}`;
+    return `## Resolution Failed\n\n❌ Auto-resolution was not possible. ${(toolResult.metadata as Record<string, unknown>)?.resolution_message || 'The case has been escalated to the support team.'}`;
   }
   
   if ((toolResult.tool_name === 'lookup' || toolResult.tool_name === 'explain_status') && toolResult.data) {
+    const record = toolResult.data as any;
+    let report = `## Executive Summary\n\nTransaction **${record.gateway?.transaction_id || record.bank?.transaction_id || record.ledger?.transaction_id || 'UNKNOWN'}** has been scanned across Gateway, Bank, and Ledger systems.\n\n`;
+    
     if ((toolResult.metadata as Record<string, unknown>)?.escalated) {
-      return `**Escalated to Support Team.** ${(toolResult.metadata as Record<string, unknown>)?.escalation_reason || 'This case requires manual review.'} The case has been added to the Exception List.`;
+      report += `⚠️ **ESCALATED TO SUPPORT TEAM:** ${(toolResult.metadata as Record<string, unknown>)?.escalation_reason || 'This case requires manual review.'}\n\n`;
     }
+
+    report += `**Reconciliation Category:** ${reconciliation?.category || 'UNKNOWN'}\n`;
+    report += `**Confidence Score:** ${((reconciliation?.confidenceScore || 0) * 100).toFixed(0)}%\n\n---\n\n## Analysis Details\n\n`;
+
     if (reconciliation?.category === 'IN_CYCLE') {
-      return `This transaction is still within the standard T+1 settlement cycle. No action required yet. Confidence: ${(reconciliation.confidenceScore * 100).toFixed(0)}%.`;
+      report += `This transaction is still within the standard T+1 settlement cycle. No action is required yet, the ledger will likely update tomorrow.`;
+    } else if (reconciliation?.category === 'FEE_DEDUCTION') {
+      report += `The discrepancy detected is likely due to **standard tax/fee deductions** (e.g., GST or platform fees) prior to settlement. The Gateway capture amount differs from the Bank settlement amount within expected margins.`;
+    } else if (reconciliation?.category === 'DATA_LAG') {
+      report += `We detected a **Data Lag**. The bank has successfully processed the settlement, but the internal ledger has not yet recorded the posting. The system has automatically triggered a ledger sync retry.`;
+    } else if (reconciliation?.category === 'UNEXPLAINED') {
+      report += `**CRITICAL ANOMALY:** A major discrepancy was found that cannot be automatically resolved. This transaction has been immediately escalated to the Admin Exception List for manual review.`;
+    } else {
+      report += `The transaction is perfectly reconciled across all systems. No missing data, amount mismatches, or timing anomalies were found.`;
     }
-    if (reconciliation?.category === 'FEE_DEDUCTION') {
-      return `The amount difference is likely due to tax/fee deductions (GST, platform fees). This has been flagged for review. Confidence: ${(reconciliation.confidenceScore * 100).toFixed(0)}%.`;
-    }
-    if (reconciliation?.category === 'DATA_LAG') {
-      return `The bank has processed the settlement but the ledger hasn't updated yet (DATA_LAG). A retry has been triggered. Confidence: ${(reconciliation.confidenceScore * 100).toFixed(0)}%.`;
-    }
+
     if (reconciliation?.hasDiscrepancy) {
-      return `A critical discrepancy was found in the records. The issue has been escalated to the Admin Console for manual review.`;
+      report += `\n\n---\n\n## Discrepancies Detected\n\n`;
+      if (reconciliation.missingFrom.length > 0) {
+        report += `- **Missing Records:** This transaction is missing from ${reconciliation.missingFrom.join(', ')}.\n`;
+      }
+      if (reconciliation.amountMismatches.length > 0) {
+        report += `- **Amount Mismatch:** Detected a difference of INR ${reconciliation.amountMismatches[0].difference.toFixed(2)} between ${reconciliation.amountMismatches[0].source1} and ${reconciliation.amountMismatches[0].source2}.\n`;
+      }
+      if (reconciliation.timingAnomalies.length > 0) {
+        report += `- **Timing Anomaly:** ${reconciliation.timingAnomalies[0].description}.\n`;
+      }
+      if (reconciliation.statusConflicts.length > 0) {
+        report += `- **Status Conflict:** Expected ${reconciliation.statusConflicts[0].expectedStatus} but got ${reconciliation.statusConflicts[0].status} in ${reconciliation.statusConflicts[0].source}.\n`;
+      }
     }
-    return `Transaction is properly reconciled across all systems. Confidence: 100%.`;
+
+    report += `\n\n---\n\n## Recommended Actions\n\n`;
+    if (reconciliation?.hasDiscrepancy) {
+      report += `Review the anomaly details. If autonomous resolution is available, type **"Resolve"** to trigger the AI resolution workflow.`;
+    } else {
+      report += `No action required. Transaction is closed.`;
+    }
+
+    return report;
   }
+
   if (toolResult.tool_name === 'list_exceptions') {
     if (Array.isArray(toolResult.data) && toolResult.data.length > 0) {
-      return `Found ${toolResult.data.length} transactions with exceptions in the current records.`;
+      return `## Exception Report\n\nFound **${toolResult.data.length}** transactions with exceptions in the current records. Please review them in the Admin Console.`;
     }
-    return `No exceptions found in the current records.`;
+    return `## Exception Report\n\nNo exceptions found. All systems are currently fully reconciled.`;
   }
   
   if (toolResult.errors.length > 0) {
-    return `I encountered an error trying to process your request: ${toolResult.errors[0]}`;
+    return `⚠️ **Error Processing Request:**\n\n${toolResult.errors.join('\n')}`;
   }
   
-  return `I have processed your request based on the available data.`;
+  return `✅ **Request Processed**\n\nThe operation completed successfully based on available data.`;
 }
 
 // Separate prompt for general/conversational questions
